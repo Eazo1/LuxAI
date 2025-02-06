@@ -113,10 +113,8 @@ class Population:
         self.genomes = new_genomes
         self.generation += 1
 
-    def evolve(self, game):
+    def evolve(self):
         # Evaluate fitness of all genomes.
-        for genome in self.genomes:
-            genome.fitness = game.simulate(genome)
         self.speciate()
         self.adjust_compatibility_threshold()
         self.remove_stale_species()
