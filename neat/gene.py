@@ -6,6 +6,9 @@ import neatconstants
 # Gene Representations (Nodes/Links)
 # ===================================
 
+def sigmoid(x):
+    return 1 / (1 + math.exp(-x))
+
 class NeuronGene:
     def __init__(self, id, bias=0.0, layer=0.0, neuron_type="hidden"):
         """
@@ -18,7 +21,7 @@ class NeuronGene:
         self.bias = bias
         self.layer = layer
         self.neuron_type = neuron_type
-        self.activation = lambda x: 1 / (1 + math.exp(-x))  # Sigmoid
+        self.activation = sigmoid
 
     @staticmethod
     def crossover(neuron1, neuron2):
