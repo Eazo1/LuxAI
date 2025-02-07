@@ -1,6 +1,6 @@
 import math
 import random
-import neatconstants
+from . import neatconstants
 
 # ===================================
 # Gene Representations (Nodes/Links)
