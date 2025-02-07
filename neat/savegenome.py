@@ -1,4 +1,4 @@
-import genome
+from . import genome
 import pickle
 
 def save_best_genome(genome:genome, filename="best_genome.pkl"):

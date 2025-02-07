@@ -1,5 +1,5 @@
-import neatconstants
-import genome
+from . import  neatconstants
+from . import  genome
 
 # =====================================
 # Compatibility Distance for Speciation

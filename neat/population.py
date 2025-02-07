@@ -1,9 +1,9 @@
 import random
 import math
-import neatconstants
-import gene
-import genome
-import species
+from . import neatconstants
+from . import gene
+from . import genome
+from . import specie
 
 # =====================
 # Population
@@ -22,32 +22,32 @@ class Population:
 
         # Initialize population with minimal networks.
         for _ in range(size):
-            genome = genome.Genome(num_inputs, num_outputs, self.innovation_tracker)
+            gnm = genome.Genome(num_inputs, num_outputs, self.innovation_tracker)
             # Create input neurons.
             for i in range(num_inputs):
-                genome.neurons[i] = gene.NeuronGene(i, bias=0.0, layer=0.0, neuron_type="input")
+                gnm.neurons[i] = gene.NeuronGene(i, bias=0.0, layer=0.0, neuron_type="input")
             # Create output neurons.
             for i in range(num_inputs, num_inputs + num_outputs):
-                genome.neurons[i] = gene.NeuronGene(i, bias=0.0, layer=1.0, neuron_type="output")
+                gnm.neurons[i] = gene.NeuronGene(i, bias=0.0, layer=1.0, neuron_type="output")
             # Fully connect inputs to outputs.
             for i in range(num_inputs):
                 for j in range(num_inputs, num_inputs + num_outputs):
                     innov = self.innovation_tracker.get_innovation_number(i, j)
-                    genome.links[innov] = gene.LinkGene(i, j, random.uniform(*neatconstants.NEW_WEIGHT_RANGE), True, innov)
-            genome.max_neuron = num_inputs + num_outputs - 1
-            self.genomes.append(genome)
+                    gnm.links[innov] = gene.LinkGene(i, j, random.uniform(*neatconstants.NEW_WEIGHT_RANGE), True, innov)
+            gnm.max_neuron = num_inputs + num_outputs - 1
+            self.genomes.append(gnm)
 
     def speciate(self):
         self.species = []
         for genome in self.genomes:
             found_species = False
             for species in self.species:
-                if species.compatibility_distance(genome, species.representative) < self.compatibility_threshold:
+                if specie.compatibility_distance(genome, species.representative) < self.compatibility_threshold:
                     species.add_genome(genome)
                     found_species = True
                     break
             if not found_species:
-                new_species = species.Species(genome)
+                new_species = specie.Species(genome)
                 new_species.add_genome(genome)
                 self.species.append(new_species)
 

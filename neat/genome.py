@@ -1,5 +1,5 @@
-import gene
-import neatconstants
+from . import gene
+from . import neatconstants
 import math
 import random
 
