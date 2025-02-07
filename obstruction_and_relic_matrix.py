@@ -56,39 +56,30 @@ class GrandObstructionMatrix(SymmetricMatrix):
     anti_iteration_i, anti_iteration_j = self.get_entangled_iteration_index(iteration_i, iteration_j)
     entangled_tile_indices = self.get_entangled_tiles_iteration_index(iteration_i, iteration_j)
 
-    #print(f"Updating ({iteration_i}, {iteration_j}) → Entangled Tiles: {entangled_tile_indices}")
-    #print(f"Writing value at: ({iteration_i}, {iteration_j}) and Entangled: {entangled_tile_indices}")
+    print(f"Updating ({iteration_i}, {iteration_j}) → Entangled Tiles: {entangled_tile_indices}")
+    print(f"Writing value at: ({iteration_i}, {iteration_j}) and Entangled: {entangled_tile_indices}")
     
     def clamp_index(index):
         return max(0, min(self.size - 1, index))
     
     if obstruction_direction == 1:
-        # For NE: start near the top for rows and near the right for columns.
-        self.data[clamp_index(obstruction_movement_step + iteration_i),
-                  clamp_index(self.size - 24 - obstruction_movement_step + iteration_j)] = value
-        self.data[clamp_index(obstruction_movement_step + anti_iteration_i),
-                  clamp_index(self.size - 24 - obstruction_movement_step + anti_iteration_j)] = value
+      self.data[clamp_index((self.size - 24 - obstruction_movement_step + iteration_i)), clamp_index((obstruction_movement_step + iteration_j))] = value
+      self.data[clamp_index((self.size - 24 - obstruction_movement_step + anti_iteration_i)), clamp_index((obstruction_movement_step + anti_iteration_j))] = value
+        
+      for tile_i, tile_j in entangled_tile_indices:
+        tile_anti_i, tile_anti_j = self.get_entangled_iteration_index(tile_i, tile_j)
+        self.data[clamp_index((self.size - 24 - obstruction_movement_step + tile_i)), clamp_index((obstruction_movement_step + tile_j))] = value
+        self.data[clamp_index((self.size - 24 - obstruction_movement_step + tile_anti_i)), clamp_index((obstruction_movement_step + tile_anti_j))] = value
 
-        for tile_i, tile_j in entangled_tile_indices:
-            tile_anti_i, tile_anti_j = self.get_entangled_iteration_index(tile_i, tile_j)
-            self.data[clamp_index(obstruction_movement_step + tile_i),
-                      clamp_index(self.size - 24 - obstruction_movement_step + tile_j)] = value
-            self.data[clamp_index(obstruction_movement_step + tile_anti_i),
-                      clamp_index(self.size - 24 - obstruction_movement_step + tile_anti_j)] = value
     else:
-        # For SW: start near the bottom for rows and near the left for columns.
-        self.data[clamp_index(self.size - 24 - obstruction_movement_step + iteration_i),
-                  clamp_index(obstruction_movement_step + iteration_j)] = value
-        self.data[clamp_index(self.size - 24 - obstruction_movement_step + anti_iteration_i),
-                  clamp_index(obstruction_movement_step + anti_iteration_j)] = value
+      self.data[clamp_index((obstruction_movement_step + iteration_i)), clamp_index((self.size - 24 - obstruction_movement_step + iteration_j))] = value
+      self.data[clamp_index((obstruction_movement_step + anti_iteration_i)), clamp_index((self.size - 24 - obstruction_movement_step + anti_iteration_j))] = value
+        
+      for tile_i, tile_j in entangled_tile_indices:
+        tile_anti_i, tile_anti_j = self.get_entangled_iteration_index(tile_i, tile_j)
+        self.data[clamp_index((obstruction_movement_step + tile_i)), clamp_index((self.size - 24 - obstruction_movement_step + tile_j))] = value
+        self.data[clamp_index((obstruction_movement_step + tile_anti_i)), clamp_index((self.size - 24 - obstruction_movement_step + tile_anti_j))] = value
 
-        for tile_i, tile_j in entangled_tile_indices:
-            tile_anti_i, tile_anti_j = self.get_entangled_iteration_index(tile_i, tile_j)
-            self.data[clamp_index(self.size - 24 - obstruction_movement_step + tile_i),
-                      clamp_index(obstruction_movement_step + tile_j)] = value
-            self.data[clamp_index(self.size - 24 - obstruction_movement_step + tile_anti_i),
-                      clamp_index(obstruction_movement_step + tile_anti_j)] = value
-            
   def get_index_value(self, index):
       """
       Retrieves the value at a given index.
@@ -99,21 +90,20 @@ class GrandObstructionMatrix(SymmetricMatrix):
 
       return self.data[i, j]
   
-  def get_obstruction_matrix_iteration(self, map_iteration_period, time_iteration):
-      total_size = self.size
-      obstruction_movement_step = time_iteration // map_iteration_period
-      if obstruction_direction == 1:
-        # For NE: extract rows from obstruction_movement_step to (24+step)
-        # and columns from (total_size-24-step) to (total_size-step)
-        obstruction_matrix_iteration = self.data[obstruction_movement_step:(24 + obstruction_movement_step),
-                                                  (total_size - 24 - obstruction_movement_step):(total_size - obstruction_movement_step)]
-      else:
-        # For SW: extract rows from (total_size-24-step) to (total_size-step)
-        # and columns from obstruction_movement_step to (24+step)
-        obstruction_matrix_iteration = self.data[(total_size - 24 - obstruction_movement_step):(total_size - obstruction_movement_step),
-                                                  obstruction_movement_step:(24 + obstruction_movement_step)]
-      return obstruction_matrix_iteration
-  
+  def get_obstruction_matrix_iteration (self, map_iteration_period, time_iteration):
+    total_size = self.size
+    
+    obstruction_movement_step = time_iteration // map_iteration_period # make sure // is correct here (for the game)
+    
+    if obstruction_direction == 1:
+      obstruction_matrix_iteration = self.data[(total_size - 24 - obstruction_movement_step) : (total_size - obstruction_movement_step),
+                                                              (obstruction_movement_step) : (24 + obstruction_movement_step)]
+    else:
+      obstruction_matrix_iteration = self.data[(obstruction_movement_step) : (24 + obstruction_movement_step),
+                                                              (total_size - 24 - obstruction_movement_step) : (total_size - obstruction_movement_step)]
+      
+    return obstruction_matrix_iteration
+
 # Trial simulation
 
 # Initialize grand obstruction matrix
@@ -127,7 +117,7 @@ for time_iteration in range(0, 100, 5):  # Simulating 20 steps
             grand_obstruction_matrix.set_index_value(map_iteration_period, time_iteration, (i, j), value)
 
 # Extract the 24×24 slice of the obstruction matrix at iteration 95
-obstruction_matrix = grand_obstruction_matrix.get_obstruction_matrix_iteration(20, 95)
+obstruction_matrix = grand_obstruction_matrix.get_obstruction_matrix_iteration(20, 0)
 
 # Extract the full grand obstruction matrix
 full_matrix = grand_obstruction_matrix.data  # The entire matrix
@@ -140,7 +130,7 @@ vmin, vmax = np.min(full_matrix), np.max(full_matrix)
 
 # Plot the 24x24 slice
 im1 = axes[0].imshow(obstruction_matrix, cmap="viridis", interpolation="nearest", vmin=vmin, vmax=vmax)
-axes[0].set_title("24×24 Slice at Iteration 95")
+axes[0].set_title("24×24 Slice at Iteration 0")
 fig.colorbar(im1, ax=axes[0])
 
 # Plot the full grand obstruction matrix
