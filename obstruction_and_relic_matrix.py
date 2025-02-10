@@ -26,9 +26,10 @@ class SymmetricMatrix:
 ###
 
 
-class GrandObstructionMatrix(SymmetricMatrix):
+class GrandObstructionMatrix():
   def __init__(self, size):
-    super().__init__(size)
+    self.size = size
+    self.data = np.zeros((size, size))
 
   def get_entangled_iteration_index(self, iteration_i, iteration_j):
     return 24 - iteration_j - 1, 24 - iteration_i - 1
@@ -47,44 +48,54 @@ class GrandObstructionMatrix(SymmetricMatrix):
     list_of_indices = [(iteration_i + n * 24, iteration_j + m * 24) for n in list_of_n for m in list_of_m if 0 <= (iteration_i + n * 24) < self.size and 0 <= (iteration_j + m * 24) < self.size]
     
     return list_of_indices
-  
-  def set_index_value(self, map_iteration_period, time_iteration, iteration_index, value):
-    obstruction_movement_step = time_iteration // map_iteration_period  # Ensure // is correct for integer division
-
-    iteration_i, iteration_j = iteration_index
     
+  def safe_update(self, i, j, value):
+      if 0 <= i < self.size and 0 <= j < self.size:
+          self.data[i, j] = value
+
+  def set_index_value(self, map_iteration_period, time_iteration, iteration_index, value):
+    obstruction_movement_step = time_iteration // map_iteration_period  # integer division
+    iteration_i, iteration_j = iteration_index
+
     anti_iteration_i, anti_iteration_j = self.get_entangled_iteration_index(iteration_i, iteration_j)
     entangled_tile_indices = self.get_entangled_tiles_iteration_index(iteration_i, iteration_j)
 
-    print(f"Updating ({iteration_i}, {iteration_j}) → Entangled Tiles: {entangled_tile_indices}")
-    print(f"Writing value at: ({iteration_i}, {iteration_j}) and Entangled: {entangled_tile_indices}")
-    
-    def clamp_index(index):
-        return max(0, min(self.size - 1, index))
-    
     if obstruction_direction == 1:
-      self.data[clamp_index((self.size - 24 - obstruction_movement_step + iteration_i)), clamp_index((obstruction_movement_step + iteration_j))] = value
-      self.data[clamp_index((self.size - 24 - obstruction_movement_step + anti_iteration_i)), clamp_index((obstruction_movement_step + anti_iteration_j))] = value
+        # Primary tile update with modulo
+        target_i = (self.size - 24 - obstruction_movement_step + iteration_i) % self.size
+        target_j = (obstruction_movement_step + iteration_j) % self.size
+        self.safe_update(target_i, target_j, value)
         
-      for tile_i, tile_j in entangled_tile_indices:
-        tile_anti_i, tile_anti_j = self.get_entangled_iteration_index(tile_i, tile_j)
-        self.data[clamp_index((self.size - 24 - obstruction_movement_step + tile_i)), clamp_index((obstruction_movement_step + tile_j))] = value
-        self.data[clamp_index((self.size - 24 - obstruction_movement_step + tile_anti_i)), clamp_index((obstruction_movement_step + tile_anti_j))] = value
-
+        # Update the symmetric partner of the primary tile
+        target_i = (self.size - 24 - obstruction_movement_step + anti_iteration_i) % self.size
+        target_j = (obstruction_movement_step + anti_iteration_j) % self.size
+        self.safe_update(target_i, target_j, value)
+        
+        # Update each of the entangled tiles
+        for tile_i, tile_j in entangled_tile_indices:
+            tile_anti_i, tile_anti_j = self.get_entangled_iteration_index(tile_i, tile_j)
+            self.safe_update((self.size - 24 - obstruction_movement_step + tile_i) % self.size,
+                             (obstruction_movement_step + tile_j) % self.size, value)
+            self.safe_update((self.size - 24 - obstruction_movement_step + tile_anti_i) % self.size,
+                             (obstruction_movement_step + tile_anti_j) % self.size, value)
     else:
-      self.data[clamp_index((obstruction_movement_step + iteration_i)), clamp_index((self.size - 24 - obstruction_movement_step + iteration_j))] = value
-      self.data[clamp_index((obstruction_movement_step + anti_iteration_i)), clamp_index((self.size - 24 - obstruction_movement_step + anti_iteration_j))] = value
+        # Similar logic for obstruction_direction == -1, applying modulo to both row and col.
+        self.safe_update((obstruction_movement_step + iteration_i) % self.size,
+                         (self.size - 24 - obstruction_movement_step + iteration_j) % self.size, value)
+        self.safe_update((obstruction_movement_step + anti_iteration_i) % self.size,
+                         (self.size - 24 - obstruction_movement_step + anti_iteration_j) % self.size, value)
         
-      for tile_i, tile_j in entangled_tile_indices:
-        tile_anti_i, tile_anti_j = self.get_entangled_iteration_index(tile_i, tile_j)
-        self.data[clamp_index((obstruction_movement_step + tile_i)), clamp_index((self.size - 24 - obstruction_movement_step + tile_j))] = value
-        self.data[clamp_index((obstruction_movement_step + tile_anti_i)), clamp_index((self.size - 24 - obstruction_movement_step + tile_anti_j))] = value
+        for tile_i, tile_j in entangled_tile_indices:
+            tile_anti_i, tile_anti_j = self.get_entangled_iteration_index(tile_i, tile_j)
+            self.safe_update((obstruction_movement_step + tile_i) % self.size,
+                             (self.size - 24 - obstruction_movement_step + tile_j) % self.size, value)
+            self.safe_update((obstruction_movement_step + tile_anti_i) % self.size,
+                             (self.size - 24 - obstruction_movement_step + tile_anti_j) % self.size, value)
+
 
   def get_index_value(self, index):
-      """
-      Retrieves the value at a given index.
-      """
       i, j = index
+      
       if not (0 <= i < self.size and 0 <= j < self.size):
           raise IndexError("Index out of bounds.")
 
