@@ -128,4 +128,8 @@ def main():
 if __name__ == "__main__":
     main()
 
+"Testing"
+
+def fun(x):
+    return 0
 
