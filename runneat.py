@@ -120,8 +120,9 @@ def evaluate_population(population):
 def main():
     num_inputs = 20 # SUBSTITUTE WITH ACTUAL NUMBER OF INPUTS
     num_outputs = 3 # SUBSTITUE WITH ACTUAL NUMBER OF OUTPUTS
-    population_size = 25
+    population_size = 50
     generations = 2
+    percent_saved = 0.6
 
     pop = population.Population(size=population_size, num_inputs=num_inputs, num_outputs=num_outputs)
 
@@ -139,7 +140,7 @@ def main():
         pop.evolve()
 
     print("Training complete. Best fitness:", best_fitness)
-    savegenome.save_best_genome(best_genome)
+    savegenome.save_top_genomes(pop.genomes, percent_saved)
 
 if __name__ == "__main__":
     main()
