@@ -5,6 +5,7 @@ from pathlib import Path
 import jax.numpy as jnp
 from multiprocessing import Pool
 from neat import gene, genome, specie, population, savegenome, neatconstants
+from agent.agent import Agent
 
 import numpy as np
 
@@ -13,8 +14,13 @@ from luxai_s3.wrappers import LuxAIS3GymEnv
 from luxai_runner.episode import EpisodeConfig
 
 class NeatBot:
-    def __init__(self, genome):
+    def __init__(self, player: str, env_cfg,genome) -> None:
         self.genome = genome
+        self.player = player
+        self.opp_player = "player_1" if self.player == "player_0" else "player_0"
+        self.team_id = 0 if self.player == "player_0" else 1
+        self.opp_team_id = 1 if self.team_id == 0 else 0
+        self.env_cfg = env_cfg
     
     def act(self, step: int, obs, remainingOverageTime: int = 60):
         """
@@ -51,14 +57,12 @@ class NeatBot:
 
         # Convert to JAX-compatible format
         action_array = jnp.array(actions)
-        
-        # Ensure action dict includes both players
-        action_dict = {
-            "player_0": action_array,  # Controlled by NEAT agent
-            "player_1": jnp.zeros_like(action_array)  # Assume player_1 takes no action (optional)
-        }
 
-        return action_dict
+        #Agent(player, configurations["env_cfg"])
+        # Ensure action dict includes both players
+        
+
+        return action_array
 
 # ------------------------------
 # Evaluation Function
@@ -70,22 +74,34 @@ def evaluate_genome(genome):
     Returns the total reward for the episode.
     """
     env = LuxAIS3GymEnv(numpy_output=True)
-    obs = env.reset()
-    bot = NeatBot(genome)
-    total_fitness = 0.0
-    done = False
-    step = 0
-    # Run episode till completion
-    while not done:
-        action = bot.act(step, obs)
-        obs, reward, terminated, truncated, _ = env.step(action)
-        # MAKE FITNESS FUNCTION BETTER
-        if (step % 20):
-            total_fitness += reward
-        done = terminated or truncated
-        print(step)
-        step += 1
+    obs, info = env.reset()
+    env_cfg = info["params"]
 
+    # Initialise agents
+    #player_0 = Agent("player_0", env_cfg)
+    player_0 = NeatBot("player_0",env_cfg,genome=genome)
+    player_1 = Agent("player_1", env_cfg)
+
+    done = False
+    total_fitness = 0.0
+    total_fitness2 = 0.0
+    step = 0
+    while not done:
+      actions = {}
+      for agent in [player_0, player_1]:
+        actions[agent.player] = agent.act(step=step, obs=obs[agent.player])
+
+      obs, reward ,terminated, truncated, info = env.step(actions)
+      doneDict = {k: terminated[k] | truncated[k] for k in terminated}
+      step += 1
+      done = (doneDict["player_0"] and doneDict["player_1"])
+    
+      print(f'Step: {step}, Reward0: {total_fitness},Reward1: {total_fitness2}')
+      if (step % 20):
+          total_fitness += reward['player_0'] #bot is player 0
+          total_fitness2 += reward['player_1'] #agent is player 1
+        
+   
     genome.fitness = total_fitness
     return total_fitness
 
@@ -128,8 +144,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-"Testing"
-
-def fun(x):
-    return 0
 
