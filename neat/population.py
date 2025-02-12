@@ -1,5 +1,6 @@
 import random
 import math
+import pickle
 from . import neatconstants
 from . import gene
 from . import genome
@@ -10,7 +11,7 @@ from . import specie
 # =====================
 
 class Population:
-    def __init__(self, size, num_inputs, num_outputs):
+    def __init__(self, size, num_inputs, num_outputs, genome_files = None):
         self.size = size
         self.num_inputs = num_inputs
         self.num_outputs = num_outputs
@@ -20,8 +21,24 @@ class Population:
         self.generation = 0
         self.compatibility_threshold = neatconstants.COMPATIBILITY_THRESHOLD
 
+        # Load genomes from files if provided
+        loaded_genomes = []
+        if genome_files:
+            for file in genome_files:
+                try:
+                    with open(file, "rb") as f:
+                        loaded_genomes.append(pickle.load(f))
+                    print(f"Loaded genome from {file}.")
+                except Exception as e:
+                    print(f"Error loading genome from {file}: {e}")
+
+        # Initialize population with loaded genomes and random genomes
+        num_loaded = min(len(loaded_genomes), size)
+        for i in range(num_loaded):
+            self.genomes.append(loaded_genomes[i].copy())
+        
         # Initialize population with minimal networks.
-        for _ in range(size):
+        for _ in range(num_loaded, size):
             gnm = genome.Genome(num_inputs, num_outputs, self.innovation_tracker)
             # Create input neurons.
             for i in range(num_inputs):
@@ -79,14 +96,20 @@ class Population:
         return total
 
     def breed(self, species):
-        if random.random() < neatconstants.CROSSOVER_RATE and len(species.genomes) > 1:
-            parent1 = random.choice(species.genomes)
-            parent2 = random.choice(species.genomes)
+        fitness_values = [genome.fitness for genome in species.genomes]
+        min_fitness = min(fitness_values)
+        adjusted_fitness = [(f - min_fitness + 1) for f in fitness_values]  # Shift to ensure non-negative values
+        total_fitness = sum(adjusted_fitness)
+
+        if total_fitness == 0:
+            parent1, parent2 = random.sample(species.genomes, 2)
+        else:
+            parent1 = random.choices(species.genomes, weights=adjusted_fitness, k=1)[0]
+            parent2 = random.choices(species.genomes, weights=adjusted_fitness, k=1)[0]
             if parent1.fitness < parent2.fitness:
                 parent1, parent2 = parent2, parent1
-            child = genome.Genome.crossover(parent1, parent2)
-        else:
-            child = random.choice(species.genomes).copy()
+        
+        child = genome.Genome.crossover(parent1, parent2) if random.random() < neatconstants.CROSSOVER_RATE else random.choice(species.genomes).copy()
         child.mutate()
         return child
 
