@@ -6,49 +6,91 @@ grand_obstruction_matrix_size = 24 + (500 // map_iteration_period) # check if //
 obstruction_direction = 1 # Range {-1,1}, with 1 meaning the little matrix moves northeast, and -1 meaning it moves southwest
 
 class Unit_Ally:
-  def __init__(self, unit_id, energy):
+  def __init__(self, unit_id, energy, index):
     self.unit_id = unit_id
     self.energy = energy
+    self.index = index
   
   def set_energy(self, energy):
     self.energy = energy
+    
+  def set_index(self, index):
+    self.index = index
   
   def get_energy(self):
     return self.energy
+  
+  def get_index(self):
+    return self.index
   
 class Unit_Enemy:
-  def __init__(self, unit_id, energy):
+  def __init__(self, unit_id, energy, index):
     self.unit_id = unit_id
     self.energy = energy
+    self.index = index
   
   def set_energy(self, energy):
     self.energy = energy
   
+  def set_index(self, index):
+    self.index = index
+  
   def get_energy(self):
     return self.energy
+  
+  def get_index(self):
+    return self.index
 
 class UserMatrix:
   def __init__(self, size=24):
     self.size = size
     self.data = np.zeros((size, size), dtype=object)
-    
+    self.unit_positions = {}  # Dictionary to store unit_ids and their positions
+  
   def get_entangled_index(self, i, j):
     return self.size - j - 1, self.size - i - 1
-    
+  
+  def remove_unit_from_matrix(self, unit):
+    # Look up the unit in the dictionary and remove it if found
+    if unit.unit_id in self.unit_positions:
+      i, j = self.unit_positions[unit.unit_id]
+      # Remove unit from the ally or enemy list
+      if unit in self.data[i, j][0]:
+        self.data[i, j][0].remove(unit)  # This can be either ally or enemy
+      elif unit in self.data[i, j][1]:
+        self.data[i, j][1].remove(unit)
+      # If both lists are empty, clear the matrix position
+      if not self.data[i, j][0] and not self.data[i, j][1]:
+        self.data[i, j] = [None, None, None]
+      # Remove from the unit_positions dictionary
+      del self.unit_positions[unit.unit_id]
+      return True
+    return False
+  
   def set_index_value(self, index, ally_units, enemy_units, value):
-    # Ensure the second and third elements are arrays of length 16 and a boolean respectively
-    if not isinstance(value, bool):
-      raise ValueError("The third value must be a boolean.")
-    if not (len(ally_units) == 16 and len(enemy_units) == 16):
-      raise ValueError("Both ally_units and enemy_units must be lists of size 16.")
-        
+    # Ensure a boolean
+    assert isinstance(value, bool), "The third value must be a boolean."
+    
+    # Only remove units that already exist in the matrix
+    for unit in ally_units + enemy_units:  # Check both ally and enemy units
+        if unit.unit_id in self.unit_positions:
+            self.remove_unit_from_matrix(unit)
+    
+    # Now place the new units into the matrix
     i, j = index
     self.data[i, j] = [ally_units, enemy_units, value]
+    
+    # Add the new units to the dictionary
+    for unit in ally_units + enemy_units:  # Add both ally and enemy units
+        self.unit_positions[unit.unit_id] = (i, j)
+    
     anti_i, anti_j = self.get_entangled_index(i, j)
     self.data[anti_i, anti_j] = [None, None, value]
-    
+
+  
   def get_index_value(self, index):
     return self.data[index]
+
   
 ###
 
@@ -141,7 +183,7 @@ class GrandObstructionMatrix():
       
     return obstruction_matrix_iteration
 
-# Trial simulatizon
+'''# Trial simulatizon
 
 # Initialize grand obstruction matrix
 grand_obstruction_matrix = GrandObstructionMatrix(grand_obstruction_matrix_size)
@@ -183,4 +225,26 @@ fig.colorbar(im2, ax=axes[1])
 plt.tight_layout()
 plt.savefig("obstruction_matrix_comparison.png")
 plt.show()
+'''
+# Create a UserMatrix instance
+matrix = UserMatrix(size=24)
 
+# Create 1 unit for ally and enemy (you can modify this to test with more units)
+ally_units = [Unit_Ally(unit_id=1, energy=100, index=(0, 0))]
+enemy_units = [Unit_Enemy(unit_id=2, energy=50, index=(0, 0))]
+
+# Test: Set one unit in the matrix
+index = (0, 0)
+value = True  # Arbitrary boolean value for testing
+matrix.set_index_value(index, ally_units, enemy_units, value)
+
+# Test: Check if units were added to the matrix correctly
+matrix_value = matrix.get_index_value(index)
+print(f"Matrix value at {index}: {matrix_value}")
+
+# Test: Ensure ally and enemy units are correctly stored
+assert matrix_value[0] == ally_units, "Ally units not added correctly!"
+assert matrix_value[1] == enemy_units, "Enemy units not added correctly!"
+assert matrix_value[2] == value, "Matrix value should be the boolean value"
+
+print("All tests passed!")
