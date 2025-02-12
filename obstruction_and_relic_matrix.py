@@ -5,23 +5,51 @@ map_iteration_period = 20 # Can be other values (must determine in game)
 grand_obstruction_matrix_size = 24 + (500 // map_iteration_period) # check if // is correct
 obstruction_direction = 1 # Range {-1,1}, with 1 meaning the little matrix moves northeast, and -1 meaning it moves southwest
 
-class SymmetricMatrix:
-  def __init__(self, size):
+class Unit_Ally:
+  def __init__(self, unit_id, energy):
+    self.unit_id = unit_id
+    self.energy = energy
+  
+  def set_energy(self, energy):
+    self.energy = energy
+  
+  def get_energy(self):
+    return self.energy
+  
+class Unit_Enemy:
+  def __init__(self, unit_id, energy):
+    self.unit_id = unit_id
+    self.energy = energy
+  
+  def set_energy(self, energy):
+    self.energy = energy
+  
+  def get_energy(self):
+    return self.energy
+
+class UserMatrix:
+  def __init__(self, size=24):
     self.size = size
-    self.data = np.zeros((size, size), dtype=bool)
+    self.data = np.zeros((size, size), dtype=object)
     
   def get_entangled_index(self, i, j):
     return self.size - j - 1, self.size - i - 1
-  
-  def set_index_value(self, index, value):
+    
+  def set_index_value(self, index, ally_units, enemy_units, value):
+    # Ensure the second and third elements are arrays of length 16 and a boolean respectively
+    if not isinstance(value, bool):
+      raise ValueError("The third value must be a boolean.")
+    if not (len(ally_units) == 16 and len(enemy_units) == 16):
+      raise ValueError("Both ally_units and enemy_units must be lists of size 16.")
+        
     i, j = index
-    self.data[i, j] = value
+    self.data[i, j] = [ally_units, enemy_units, value]
     anti_i, anti_j = self.get_entangled_index(i, j)
-    self.data[anti_i, anti_j] = value
-  
+    self.data[anti_i, anti_j] = [None, None, value]
+    
   def get_index_value(self, index):
     return self.data[index]
-
+  
 ###
 
 class GrandObstructionMatrix():
