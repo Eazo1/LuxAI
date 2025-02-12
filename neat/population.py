@@ -96,14 +96,20 @@ class Population:
         return total
 
     def breed(self, species):
-        if random.random() < neatconstants.CROSSOVER_RATE and len(species.genomes) > 1:
-            parent1 = random.choice(species.genomes)
-            parent2 = random.choice(species.genomes)
+        fitness_values = [genome.fitness for genome in species.genomes]
+        min_fitness = min(fitness_values)
+        adjusted_fitness = [(f - min_fitness + 1) for f in fitness_values]  # Shift to ensure non-negative values
+        total_fitness = sum(adjusted_fitness)
+
+        if total_fitness == 0:
+            parent1, parent2 = random.sample(species.genomes, 2)
+        else:
+            parent1 = random.choices(species.genomes, weights=adjusted_fitness, k=1)[0]
+            parent2 = random.choices(species.genomes, weights=adjusted_fitness, k=1)[0]
             if parent1.fitness < parent2.fitness:
                 parent1, parent2 = parent2, parent1
-            child = genome.Genome.crossover(parent1, parent2)
-        else:
-            child = random.choice(species.genomes).copy()
+        
+        child = genome.Genome.crossover(parent1, parent2) if random.random() < neatconstants.CROSSOVER_RATE else random.choice(species.genomes).copy()
         child.mutate()
         return child
 
