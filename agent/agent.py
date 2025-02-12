@@ -10,7 +10,7 @@ import numpy as np
 from sys import stderr
 from scipy.signal import convolve2d
 
-from base import (
+from .base import (
     Global,
     NodeType,
     ActionType,
@@ -21,8 +21,8 @@ from base import (
     is_team_sector,
     get_match_number,
 )
-from debug import show_map, show_energy_field, show_exploration_map
-from pathfinding import (
+from .debug import show_map, show_energy_field, show_exploration_map
+from .pathfinding import (
     astar,
     find_closest_target,
     nearby_positions,

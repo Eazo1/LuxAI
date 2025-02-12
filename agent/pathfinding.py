@@ -8,7 +8,7 @@ Created on Fri Jan 31 17:05:33 2025
 import heapq
 import numpy as np
 
-from base import SPACE_SIZE, NodeType, Global, ActionType
+from .base import SPACE_SIZE, NodeType, Global, ActionType
 
 CARDINAL_DIRECTIONS = [(0, 1), (0, -1), (1, 0), (-1, 0)]
 
