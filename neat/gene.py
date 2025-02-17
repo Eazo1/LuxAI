@@ -1,5 +1,6 @@
 import math
 import random
+import numpy as np
 from . import neatconstants
 
 # ===================================
@@ -7,7 +8,13 @@ from . import neatconstants
 # ===================================
 
 def sigmoid(x):
-    return 1 / (1 + math.exp(-x))
+    return 1 / (1 + np.exp(np.clip(-x, -500, 500)))
+
+def relu(x, alpha=0.01):
+    return np.where(x > 0, x, alpha * x)
+
+def passthrough(x):
+    return x
 
 class NeuronGene:
     def __init__(self, id, bias=0.0, layer=0.0, neuron_type="hidden"):
@@ -21,7 +28,10 @@ class NeuronGene:
         self.bias = bias
         self.layer = layer
         self.neuron_type = neuron_type
-        self.activation = sigmoid
+        if (neuron_type == "output"):
+            self.activation = passthrough
+        else:
+            self.activation = relu
 
     @staticmethod
     def crossover(neuron1, neuron2):
