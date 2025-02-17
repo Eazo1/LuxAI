@@ -8,8 +8,8 @@ WEIGHT_PERTURBATION_STRENGTH = 0.5
 NEW_WEIGHT_RANGE = (-1.0, 1.0)
 BIAS_MUTATION_RATE = 0.1
 BIAS_PERTURBATION_STRENGTH = 0.5
-ADD_LINK_RATE = 0.05
-ADD_NODE_RATE = 0.03
+ADD_LINK_RATE = 0.5
+ADD_NODE_RATE = 0.3
 
 # Speciation parameters (these coefficients are as in the original NEAT paper)
 C1 = 1.0      # Coefficient for excess genes
