@@ -103,6 +103,9 @@ class GrandObstructionMatrix():
       for j in range(size):
         self.data[i, j] = np.zeros(self.node_info_size)  
 
+  def set_obstruction_direction(self, direction):
+    self.obstruction_direction = direction
+  
   def get_entangled_iteration_index(self, iteration_i, iteration_j):
     return 24 - iteration_j - 1, 24 - iteration_i - 1
   
@@ -248,3 +251,4 @@ assert matrix_value[1] == enemy_units, "Enemy units not added correctly!"
 assert matrix_value[2] == value, "Matrix value should be the boolean value"
 
 print("All tests passed!")
+
