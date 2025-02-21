@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 map_iteration_period = 20 # Can be other values (must determine in game)
 grand_obstruction_matrix_size = 24 + (500 // map_iteration_period) # check if // is correct
-obstruction_direction = 1 # Range {-1,1}, with 1 meaning the little matrix moves northeast, and -1 meaning it moves southwest
+#obstruction_direction = 1 # Range {-1,1}, with 1 meaning the little matrix moves northeast, and -1 meaning it moves southwest
 
 class Unit_Ally:
   def __init__(self, unit_id, energy, index):
@@ -95,10 +95,11 @@ class UserMatrix:
 ###
 
 class GrandObstructionMatrix():
-  def __init__(self, size, node_info_size=2):
+  def __init__(self, size, node_info_size=2, obstruction_direction=1):
     self.size = size
     self.node_info_size = node_info_size
     self.data = np.zeros((int(size), int(size)), dtype=object)
+    self.obstruction_direction = 1  # Default value
     for i in range(size):
       for j in range(size):
         self.data[i, j] = np.zeros(self.node_info_size)  
@@ -137,7 +138,7 @@ class GrandObstructionMatrix():
     anti_iteration_i, anti_iteration_j = self.get_entangled_iteration_index(iteration_i, iteration_j)
     entangled_tile_indices = self.get_entangled_tiles_iteration_index(iteration_i, iteration_j)
 
-    if obstruction_direction == 1:
+    if self.obstruction_direction == 1:
       target_i = (self.size - 24 - obstruction_movement_step + iteration_i) % self.size
       target_j = (obstruction_movement_step + iteration_j) % self.size
       self.safe_update(target_i, target_j, discrete_values)
@@ -179,7 +180,7 @@ class GrandObstructionMatrix():
     
     obstruction_movement_step = time_iteration // map_iteration_period # make sure // is correct here (for the game)
     
-    if obstruction_direction == 1:
+    if self.obstruction_direction == 1:
       obstruction_matrix_iteration = self.data[(total_size - 24 - obstruction_movement_step) : (total_size - obstruction_movement_step),
                                                               (obstruction_movement_step) : (24 + obstruction_movement_step)]
     else:
