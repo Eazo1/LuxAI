@@ -98,7 +98,7 @@ class GrandObstructionMatrix():
   def __init__(self, size, node_info_size=2):
     self.size = size
     self.node_info_size = node_info_size
-    self.data = np.zeros((size, size), dtype=object)
+    self.data = np.zeros((int(size), int(size)), dtype=object)
     for i in range(size):
       for j in range(size):
         self.data[i, j] = np.zeros(self.node_info_size)  
@@ -125,6 +125,8 @@ class GrandObstructionMatrix():
     return list_of_indices
     
   def safe_update(self, i, j, discrete_values):
+    i = int(i)
+    j = int(j)
     if 0 <= i < self.size and 0 <= j < self.size:
       self.data[i, j] = np.array(discrete_values)
 
