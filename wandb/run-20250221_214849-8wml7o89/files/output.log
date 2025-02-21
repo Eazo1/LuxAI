@@ -1,0 +1,23 @@
+Starting training...
+Validation loss: 2394.7771
+Iteration 100, training loss: 2159.9438
+Validation loss: 1899.9206
+Iteration 200, training loss: 1698.1155
+Validation loss: 1704.1549
+Iteration 300, training loss: 1457.2673
+Validation loss: 1536.4260
+Iteration 400, training loss: 1362.9808
+Validation loss: 1420.9769
+Iteration 500, training loss: 1481.9080
+Validation loss: 1341.4390
+Iteration 600, training loss: 1223.1707
+Validation loss: 1236.6136
+Iteration 700, training loss: 1329.3625
+Validation loss: 1181.9511
+Iteration 800, training loss: 1140.3142
+Validation loss: 1139.1994
+Iteration 900, training loss: 1068.8895
+Validation loss: 1084.2192
+Iteration 1000, training loss: 1019.5668
+Validation loss: 1043.9630
+Model saved to C:/Users/ahmad/Desktop/lux/GOM_autoencoder_model.pth

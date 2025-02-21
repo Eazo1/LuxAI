@@ -1,0 +1,43 @@
+{
+  "os": "Windows-10-10.0.22631-SP0",
+  "python": "3.11.9",
+  "startedAt": "2025-02-21T21:35:36.203312Z",
+  "program": "C:\\Users\\ahmad\\Desktop\\lux\\GOM_autoencoder.py",
+  "codePath": "GOM_autoencoder.py",
+  "git": {
+    "remote": "https://github.com/Eazo1/LuxAI",
+    "commit": "96a94552211690e2b7b658286ac98b3c160dc260"
+  },
+  "email": "ahmad.abdelhakam@student.manchester.ac.uk",
+  "root": "C:\\Users\\ahmad\\Desktop\\lux",
+  "host": "MSI",
+  "username": "ahmad",
+  "executable": "C:\\Users\\ahmad\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe",
+  "codePathLocal": "GOM_autoencoder.py",
+  "cpu_count": 10,
+  "cpu_count_logical": 16,
+  "gpu": "NVIDIA GeForce RTX 3060 Laptop GPU",
+  "gpu_count": 1,
+  "disk": {
+    "/": {
+      "total": "998175141888",
+      "used": "869187985408"
+    }
+  },
+  "memory": {
+    "total": "16870453248"
+  },
+  "cpu": {
+    "count": 10,
+    "countLogical": 16
+  },
+  "gpu_nvidia": [
+    {
+      "name": "NVIDIA GeForce RTX 3060 Laptop GPU",
+      "memoryTotal": "6442450944",
+      "cudaCores": 3840,
+      "architecture": "Ampere"
+    }
+  ],
+  "cudaVersion": "12.6"
+}

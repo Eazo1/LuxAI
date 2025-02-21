@@ -53,17 +53,17 @@ valid_loader = DataLoader(valid_dataset, batch_size=4, shuffle=False)
 
 # Define residual stack
 class ResidualBlock(nn.Module):
-    def __init__(self, num_hiddens, num_residual_hiddens):
+    def __init__(self, in_and_out_channels, residual_in_and_out_channels):
         super(ResidualBlock, self).__init__()
         self.conv1 = nn.Conv2d(
-            in_channels=num_hiddens,
-            out_channels=num_residual_hiddens,
+            in_channels=in_and_out_channels,
+            out_channels=residual_in_and_out_channels,
             kernel_size=3,
             stride=1,
             padding=1)
         self.conv2 = nn.Conv2d(
-            in_channels=num_residual_hiddens,
-            out_channels=num_hiddens,
+            in_channels=residual_in_and_out_channels,
+            out_channels=in_and_out_channels,
             kernel_size=1,
             stride=1)
     
@@ -75,10 +75,10 @@ class ResidualBlock(nn.Module):
         return x + h
 
 class ResidualStack(nn.Module):
-    def __init__(self, num_hiddens, num_residual_layers, num_residual_hiddens):
+    def __init__(self, in_and_out_channels, num_residual_layers, residual_in_and_out_channels):
         super(ResidualStack, self).__init__()
         self.layers = nn.ModuleList(
-            [ResidualBlock(num_hiddens, num_residual_hiddens)
+            [ResidualBlock(in_and_out_channels, residual_in_and_out_channels)
              for _ in range(num_residual_layers)])
     
     def forward(self, x):
@@ -90,15 +90,17 @@ class Encoder(nn.Module):
     def __init__(self, num_hiddens, num_residual_layers, num_residual_hiddens, latent_dim=64):
         super(Encoder, self).__init__()
         self.conv1 = nn.Conv2d(in_channels=1, out_channels=num_hiddens // 2, kernel_size=4, stride=2, padding=1)
-        self.conv2 = nn.Conv2d(in_channels=num_hiddens // 2, out_channels=latent_dim, kernel_size=4, stride=2, padding=1)
+        self.conv2 = nn.Conv2d(in_channels=num_hiddens // 2, out_channels=num_hiddens // 4, kernel_size=4, stride=2, padding=1)
+        self.conv2b = nn.Conv2d(in_channels=num_hiddens // 4, out_channels=latent_dim, kernel_size=4, stride=2, padding=1)
         self.conv3 = nn.Conv2d(in_channels=latent_dim, out_channels=latent_dim, kernel_size=3, stride=1, padding=1)
         
         # Initialize residual stack as a module
-        self.residual_stack = ResidualStack(num_hiddens, num_residual_layers, num_residual_hiddens)
+        self.residual_stack = ResidualStack(latent_dim, num_residual_layers, num_residual_hiddens)
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
         x = F.relu(self.conv2(x))
+        x = F.relu(self.conv2b(x)) 
         x = self.conv3(x)
         # Use the residual stack
         x = self.residual_stack(x)
@@ -131,7 +133,7 @@ class Autoencoder(nn.Module):
     def __init__(self, num_hiddens, num_residual_layers, num_residual_hiddens, latent_dim):
         super(Autoencoder, self).__init__()
         self.encoder = Encoder(num_hiddens, num_residual_layers, num_residual_hiddens, latent_dim=latent_dim)
-        self.decoder = Decoder(num_hiddens, num_residual_layers, num_residual_hiddens, input_dim=num_hiddens)
+        self.decoder = Decoder(num_hiddens, num_residual_layers, num_residual_hiddens, input_dim=latent_dim)
 
     def forward(self, x):
         original_size = x.shape[-2:]  # Extracts (H, W) from input
@@ -143,12 +145,12 @@ class Autoencoder(nn.Module):
 
 # Setup parameters
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-latent_dim = 20
+latent_dim = 15
 num_hiddens = 256
 num_residual_layers = 2
 num_residual_hiddens = 32
 learning_rate = 2e-4
-num_training_updates = 1000
+num_training_updates = 3000
 
 wandb.login(key="7391c065d23aad000052bc1f7a3a512445ae83d0")
 wandb.init(
@@ -173,12 +175,12 @@ iteration = 0
 autoencoder.train()
 print("Starting training...")
 while iteration < num_training_updates:
-    for gom in train_loader:
+    for goms in train_loader:
         # Debug print: show shape before processing.
-        print("Shape of GOMS before processing:", gom.shape)
+        #print("Shape of GOMS before processing:", goms.shape)
         
         # If the tensor has 5 dimensions (e.g., [batch, 1, 1, H, W]), remove the extra dimension.
-        if gom.dim() == 5:
+        if goms.dim() == 5:
             goms = goms.squeeze(2)  # Remove the extra dimension at index 2.
         # If goms come in as 3D (i.e., missing the channel dimension), add one.
         elif goms.dim() == 3:
@@ -236,7 +238,7 @@ with torch.no_grad():
         break
 
 # Plot the first few matrices and their reconstructions
-num_plots = 5
+num_plots = 4
 fig, axes = plt.subplots(2, num_plots, figsize=(15, 5))
 for i in range(num_plots):
     axes[0, i].imshow(goms[i, 0].cpu().numpy(), cmap='viridis')

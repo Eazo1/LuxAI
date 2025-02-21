@@ -1,0 +1,6 @@
+Starting training...
+Traceback (most recent call last):
+  File "C:\Users\ahmad\Desktop\lux\GOM_autoencoder.py", line 178, in <module>
+    print("Shape of GOMS before processing:", gom.shape)
+                                              ^^^
+NameError: name 'gom' is not defined

@@ -1,0 +1,202 @@
+Starting training...
+Iteration 100, training loss: 3753.8809
+Validation loss: 3623.5792
+Iteration 200, training loss: 3734.2009
+Validation loss: 3506.8207
+Iteration 300, training loss: 3761.3960
+Validation loss: 3431.3954
+Iteration 400, training loss: 3214.4031
+Validation loss: 3360.2908
+Iteration 500, training loss: 3232.4285
+Validation loss: 3314.8447
+Iteration 600, training loss: 3471.2839
+Validation loss: 3285.0867
+Iteration 700, training loss: 3628.5493
+Validation loss: 3261.7127
+Iteration 800, training loss: 3607.0588
+Validation loss: 3236.1443
+Iteration 900, training loss: 2731.7510
+Validation loss: 3221.5533
+Iteration 1000, training loss: 3169.4932
+Validation loss: 3169.7294
+Iteration 1100, training loss: 2801.3145
+Validation loss: 3167.8677
+Iteration 1200, training loss: 3237.2886
+Validation loss: 3138.4089
+Iteration 1300, training loss: 2934.6106
+Validation loss: 3139.2705
+Iteration 1400, training loss: 2645.7429
+Validation loss: 3109.9118
+Iteration 1500, training loss: 3170.3730
+Validation loss: 3097.7172
+Iteration 1600, training loss: 3049.8206
+Validation loss: 3088.5799
+Iteration 1700, training loss: 2982.1841
+Validation loss: 3075.8854
+Iteration 1800, training loss: 2692.1216
+Validation loss: 3066.8254
+Iteration 1900, training loss: 3006.5908
+Validation loss: 3056.4022
+Iteration 2000, training loss: 2680.1836
+Validation loss: 3051.6299
+Iteration 2100, training loss: 2790.9229
+Validation loss: 3040.3034
+Iteration 2200, training loss: 2798.8220
+Validation loss: 3029.2274
+Iteration 2300, training loss: 2528.1167
+Validation loss: 3051.5702
+Iteration 2400, training loss: 2674.6099
+Validation loss: 3025.9180
+Iteration 2500, training loss: 2497.8210
+Validation loss: 3037.8342
+Iteration 2600, training loss: 2581.3345
+Validation loss: 3033.4222
+Iteration 2700, training loss: 2526.0691
+Validation loss: 3033.2633
+Iteration 2800, training loss: 2563.2378
+Validation loss: 3034.1465
+Iteration 2900, training loss: 2473.2532
+Validation loss: 3039.1168
+Iteration 3000, training loss: 2286.9414
+Validation loss: 3023.1828
+Iteration 3100, training loss: 2256.3835
+Validation loss: 3036.6312
+Iteration 3200, training loss: 2252.0715
+Validation loss: 3037.5845
+Iteration 3300, training loss: 2356.4216
+Validation loss: 3039.4640
+Iteration 3400, training loss: 2296.2134
+Validation loss: 3047.2188
+Iteration 3500, training loss: 2143.1040
+Validation loss: 3041.6941
+Iteration 3600, training loss: 2182.0422
+Validation loss: 3055.1788
+Iteration 3700, training loss: 2271.1990
+Validation loss: 3049.0165
+Iteration 3800, training loss: 2119.3728
+Validation loss: 3035.2570
+Iteration 3900, training loss: 2194.5874
+Validation loss: 3070.7214
+Iteration 4000, training loss: 2189.0115
+Validation loss: 3058.3199
+Iteration 4100, training loss: 2361.7192
+Validation loss: 3068.8335
+Iteration 4200, training loss: 1949.2386
+Validation loss: 3069.0740
+Iteration 4300, training loss: 1736.4396
+Validation loss: 3068.4024
+Iteration 4400, training loss: 2450.7573
+Validation loss: 3067.0873
+Iteration 4500, training loss: 2167.7974
+Validation loss: 3071.0619
+Iteration 4600, training loss: 1983.8597
+Validation loss: 3080.7962
+Iteration 4700, training loss: 2284.7041
+Validation loss: 3082.9115
+Iteration 4800, training loss: 2048.6602
+Validation loss: 3102.0165
+Iteration 4900, training loss: 2553.3848
+Validation loss: 3095.0710
+Iteration 5000, training loss: 2066.3372
+Validation loss: 3101.8798
+Iteration 5100, training loss: 1777.5039
+Validation loss: 3106.4437
+Iteration 5200, training loss: 2160.8345
+Validation loss: 3098.1843
+Iteration 5300, training loss: 2122.8723
+Validation loss: 3118.9253
+Iteration 5400, training loss: 1919.2133
+Validation loss: 3110.1122
+Iteration 5500, training loss: 1921.0878
+Validation loss: 3116.6704
+Iteration 5600, training loss: 1929.5330
+Validation loss: 3133.0378
+Iteration 5700, training loss: 1749.1411
+Validation loss: 3124.6197
+Iteration 5800, training loss: 1760.7308
+Validation loss: 3137.5134
+Iteration 5900, training loss: 1892.1017
+Validation loss: 3130.0571
+Iteration 6000, training loss: 2049.3813
+Validation loss: 3137.5314
+Iteration 6100, training loss: 1988.7356
+Validation loss: 3142.0909
+Iteration 6200, training loss: 1822.2517
+Validation loss: 3143.9432
+Iteration 6300, training loss: 1834.1215
+Validation loss: 3138.7158
+Iteration 6400, training loss: 2063.8936
+Validation loss: 3149.2220
+Iteration 6500, training loss: 1830.3379
+Validation loss: 3145.0513
+Iteration 6600, training loss: 2042.1185
+Validation loss: 3141.4316
+Iteration 6700, training loss: 1724.9301
+Validation loss: 3145.3555
+Iteration 6800, training loss: 1840.7390
+Validation loss: 3151.7913
+Iteration 6900, training loss: 1932.1633
+Validation loss: 3156.7831
+Iteration 7000, training loss: 2219.5059
+Validation loss: 3154.9549
+Iteration 7100, training loss: 1883.8497
+Validation loss: 3165.3878
+Iteration 7200, training loss: 1835.0649
+Validation loss: 3170.4781
+Iteration 7300, training loss: 1980.4674
+Validation loss: 3154.1720
+Iteration 7400, training loss: 1763.5526
+Validation loss: 3163.1876
+Iteration 7500, training loss: 2229.6895
+Validation loss: 3170.9013
+Iteration 7600, training loss: 1889.4452
+Validation loss: 3166.6252
+Iteration 7700, training loss: 1859.1240
+Validation loss: 3172.3226
+Iteration 7800, training loss: 1767.8643
+Validation loss: 3184.6784
+Iteration 7900, training loss: 2012.3931
+Validation loss: 3175.9878
+Iteration 8000, training loss: 1988.5151
+Validation loss: 3180.8341
+Iteration 8100, training loss: 1970.6091
+Validation loss: 3177.8193
+Iteration 8200, training loss: 1795.2170
+Validation loss: 3181.1005
+Iteration 8300, training loss: 1882.9460
+Validation loss: 3188.8735
+Iteration 8400, training loss: 1928.0116
+Validation loss: 3185.9011
+Iteration 8500, training loss: 2079.5610
+Validation loss: 3187.3482
+Iteration 8600, training loss: 2021.8401
+Validation loss: 3189.4953
+Iteration 8700, training loss: 1810.1899
+Validation loss: 3188.3945
+Iteration 8800, training loss: 1763.1951
+Validation loss: 3180.1507
+Iteration 8900, training loss: 1899.5016
+Validation loss: 3191.4523
+Iteration 9000, training loss: 2366.7839
+Validation loss: 3194.0719
+Iteration 9100, training loss: 1884.3204
+Validation loss: 3199.3912
+Iteration 9200, training loss: 1616.6501
+Validation loss: 3200.7167
+Iteration 9300, training loss: 1801.9961
+Validation loss: 3198.5674
+Iteration 9400, training loss: 2211.3250
+Validation loss: 3197.2282
+Iteration 9500, training loss: 2016.3413
+Validation loss: 3190.8179
+Iteration 9600, training loss: 1500.0085
+Validation loss: 3204.4651
+Iteration 9700, training loss: 1694.0692
+Validation loss: 3200.2659
+Iteration 9800, training loss: 1782.1689
+Validation loss: 3205.6341
+Iteration 9900, training loss: 1570.2258
+Validation loss: 3209.5072
+Iteration 10000, training loss: 1662.1132
+Validation loss: 3202.5684
+Model saved to C:/Users/ahmad/Desktop/lux/GOM_autoencoder_model.pth

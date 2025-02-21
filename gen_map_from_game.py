@@ -48,7 +48,10 @@ def gen_game_map(seed):
         obs, state, reward, terminated, truncated, info = env.step(
             subkey, state, action, params=env_params
         )
-        MAP.append(np.array(state.map_features.tile_type))
+        
+        # JAX to numpy conversion cause JAX is slow - EAZO
+        MAP.append(np.array(jnp.array(state.map_features.tile_type)))
+        
         RELIC_STEP = []
         for i in range(6):
             if state.relic_nodes_mask[i]:
@@ -59,6 +62,48 @@ def gen_game_map(seed):
     PARAMS = json.dumps(env_params.__dict__) 
     return MAP,RELIC_NODES,PARAMS
 
+# rewrite
+def gen_game_map_time_start(seed):
+    # Create the environment
+    env = LuxAIS3Env(auto_reset=False)
+    env_params = EnvParams(map_type=0, max_steps_in_match=100)
+
+    # Initialize a random key
+    key = jax.random.key(seed)
+    
+    # Reset the environment
+    key, reset_key = jax.random.split(key)
+    obs, state = env.reset(reset_key, params=env_params)
+    
+    # Take a random action
+    key, subkey = jax.random.split(key)
+    action = env.action_space(env_params).sample(subkey)
+    
+    # Step the environment twice (not sure why it's needed, but keeping it)
+    for _ in range(2):
+        key, subkey = jax.random.split(key)
+        obs, state, reward, terminated, truncated, info = env.step(
+            subkey, state, action, params=env_params
+        )
+
+    # Reset the environment again for game simulation
+    key = jax.random.key(seed)
+    key, subkey = jax.random.split(key)
+    obs, state = env.reset(subkey, params=env_params)
+
+    # Store only the first map state
+    first_map = np.array(jnp.array(state.map_features.tile_type))  # Convert JAX to NumPy
+
+    # Store only the first relic node positions
+    first_relic_nodes = np.array([
+        state.relic_nodes[i, :2] for i in range(6) if state.relic_nodes_mask[i]
+    ])
+
+    # Convert parameters to JSON for easy storage
+    params = json.dumps(env_params.__dict__)
+
+    return first_map, first_relic_nodes, params
+
 
 ###
 
@@ -68,15 +113,15 @@ def gen_game_map(seed):
 
 # Generate a new mock MAP with the correct size
 # Generate a random seed
-random_seed = np.random.randint(0, 2**31)
+#random_seed = np.random.randint(0, 2**31)
 
 # Print the generated seed
-print('Generated Seed Value: ', random_seed)
+#print('Generated Seed Value: ', random_seed)
 
 # Call the function with the generated seed
-map, relic_nodes, params = gen_game_map(random_seed)
+#map, relic_nodes, params = gen_game_map(random_seed)
 
-print(params)
+#print(params)
 
 '''#MAP = np.random.randint(0, 4, size=(N, H, W))  # Simulating different terrain types
 

@@ -4,6 +4,9 @@ import json
 import os
 import obstruction_and_relic_matrix
 import gen_map_from_game
+import gc
+import jax
+
 
 #map_iteration_period = 20 # Can be other values (must determine in game)
 #grand_obstruction_matrix_size = 24 + (500 // map_iteration_period) # check if // is correct
@@ -44,7 +47,7 @@ plt.show()
 def create_and_save_grand_obstruction_matrix(num_matrices):
     for m in range(num_matrices):
         random_seed = np.random.randint(0, 2**10)
-        map, relic_nodes, params = gen_map_from_game.gen_game_map(random_seed)
+        map, relic_nodes, params = gen_map_from_game.gen_game_map_time_start(random_seed)
         params = json.loads(params)
         nebula_tile_drift_speed = params['nebula_tile_drift_speed']
         map_iteration_period = 1/np.absolute(nebula_tile_drift_speed)
@@ -52,11 +55,18 @@ def create_and_save_grand_obstruction_matrix(num_matrices):
         obstruction_direction = np.sign(nebula_tile_drift_speed)
         obstruction_matrix = obstruction_and_relic_matrix.GrandObstructionMatrix(grand_obstruction_matrix_size)
         obstruction_matrix.set_obstruction_direction(obstruction_direction)
-        for i in range(len(map[0][0])-1):
-            for j in range(len(map[0][0])-1):
-                obstruction_matrix.set_index_value(map_iteration_period, time_iteration=0, iteration_index=[i,j], discrete_values=map[0][i][j])
-        obstruction_matrix_data = obstruction_matrix.data
-        obstruction_matrix_data = np.array([[np.mean(cell) for cell in row] for row in obstruction_matrix_data], dtype=float)
+        
+        for i in range(map.shape[0]):
+            for j in range(map.shape[1]):
+                obstruction_matrix.set_index_value(map_iteration_period, time_iteration=0, iteration_index=[i,j], discrete_values=map[i,j])
+
+        #print(type(obstruction_matrix.data[0][0]))  # Check the data type of one cell
+        #print(obstruction_matrix.data[0][0])       # Print its contents
+
+        
+        obstruction_matrix_data = obstruction_matrix.data.astype(int)
+
+        #obstruction_matrix_data = np.array([[np.mean(cell) for cell in row] for row in obstruction_matrix.data], dtype=float)
         #plt.imshow(obstruction_matrix_data, cmap='viridis')
         #plt.savefig('grand_obstruction_matrix_' + str(i) + '.png')
         #plt.close()
@@ -68,7 +78,11 @@ def create_and_save_grand_obstruction_matrix(num_matrices):
 
         # save the obstruction matrix as a numpy file
         np.save(file_location + 'grand_obstruction_matrix_' + str(m), obstruction_matrix_data)
-        del obstruction_matrix_data # Clear the data from memory
+        
+        del obstruction_matrix, obstruction_matrix_data, map, relic_nodes, params
+        gc.collect()  # Run garbage collection to free up memory
+        jax.clear_caches()  # Clear JAX backends to free up memory
+        
         #print('Grand Obstruction Matrix ' + str(m) + ' saved successfully!')
         # Update the user on the progress
         if m % 50 == 0:
@@ -83,6 +97,6 @@ for f in os.listdir(file_location):
 print('All existing Grand Obstruction Matrices deleted!')
 
 # Call the function to create and save #N GOMs
-number_of_matrices = 1000
+number_of_matrices = 500
 create_and_save_grand_obstruction_matrix(number_of_matrices)
 print('All ' + str(number_of_matrices) + ' Grand Obstruction Matrices saved successfully')
