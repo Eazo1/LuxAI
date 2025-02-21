@@ -7,6 +7,17 @@ import random
 # Genome (Neural Network)
 # ============================
 
+def normalize(values):
+    if not values:
+        return []
+    
+    min_val, max_val = min(values), max(values)
+    if min_val == max_val:
+        return [0] * len(values)
+    
+    scale = max_val - min_val
+    return [(x - min_val) / scale for x in values]
+
 class Genome:
     def __init__(self, num_inputs, num_outputs, innovation_tracker, neurons=None, links=None):
         self.num_inputs = num_inputs
@@ -142,6 +153,7 @@ class Genome:
         Evaluates the network on the given input values.
         Assumes that the number of input_values equals the number of input neurons.
         """
+        input_values = normalize(input_values)
         activations = {}
         # Set input neuron activations (sorted by neuron id for consistency).
         input_neurons = sorted([n for n in self.neurons.values() if n.neuron_type == "input"], key=lambda n: n.id)
@@ -164,4 +176,5 @@ class Genome:
         # Collect output neuron activations (sorted by id).
         output_neurons = sorted([n for n in self.neurons.values() if n.neuron_type == "output"], key=lambda n: n.id)
         outputs = [activations[n.id] for n in output_neurons]
+        outputs = normalize(outputs)
         return outputs

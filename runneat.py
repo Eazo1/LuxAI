@@ -13,6 +13,33 @@ import numpy as np
 from luxai_s3.wrappers import LuxAIS3GymEnv
 from luxai_runner.episode import EpisodeConfig
 
+def flatten_structure(structure):
+    """Recursively flatten nested structures into a single 1D NumPy array."""
+    flat_list = []
+    
+    if isinstance(structure, dict):
+        for value in structure.values():
+            flat_list.extend(flatten_structure(value))
+    elif isinstance(structure, (list, tuple)):
+        for item in structure:
+            flat_list.extend(flatten_structure(item))
+    elif isinstance(structure, np.ndarray):
+        flat_list.extend(structure.ravel())  # Flatten arrays
+    elif isinstance(structure, (int, float, bool)):
+        flat_list.append(structure)
+    else:
+        raise TypeError(f"Unsupported type: {type(structure)}")
+    
+    return flat_list
+
+def temperature_softmax(x, temperature=1.0):
+    """Softmax-like probability distribution from a single output using temperature scaling."""
+    x = np.clip(x, -10, 10)  # Clip for numerical stability
+    logits = np.array([x + i for i in range(-3, 3)])  # Create 6 pseudo-logits from the single score
+    exp_logits = np.exp((logits - np.max(logits)) / temperature)
+    probabilities = exp_logits / np.sum(exp_logits)
+    return probabilities
+
 class NeatBot:
     def __init__(self, player: str, env_cfg,genome) -> None:
         self.genome = genome
@@ -35,32 +62,23 @@ class NeatBot:
     def extract_features(self, step, obs):
         # NEED TO CODE
         # Following is DUMMY CODE
-        return np.random.randn(20)
+        return flatten_structure(list(obs.values()))
 
     def interpret_outputs(self, outputs):
-        # NEED TO CODE
-        # Following is DUMMY CODE
-        
+        '''Takes the outputs of genome and applies softmax to decide moves'''
         num_units = 16  # Assume max 16 units to control
-        num_actions = 3  # Each unit can take 3 possible actions
+        num_actions = 6  # Each unit can take 3 possible actions
 
         # Convert neural network outputs into a discrete action for each unit
-        actions = np.zeros((num_units, num_actions), dtype=int)
+        actions = np.zeros((num_units, 3), dtype=int)
 
-        for i, output in enumerate(outputs[:num_units]):  # Ensure we don't exceed the number of units
-            if output < 0.33:
-                actions[i] = [1, 0, 0]  # Example: Move Left
-            elif output < 0.66:
-                actions[i] = [0, 1, 0]  # Example: Move Right
-            else:
-                actions[i] = [0, 0, 1]  # Example: Collect Resource
+        for i, output in enumerate(outputs):
+            action_probs = temperature_softmax(output, temperature=0.8)
+            chosen_action = np.random.choice(num_actions, p=action_probs)  # Sample based on probability
+            actions[i] = [chosen_action, 0, 0]
 
         # Convert to JAX-compatible format
-        action_array = jnp.array(actions)
-
-        #Agent(player, configurations["env_cfg"])
-        # Ensure action dict includes both players
-        
+        action_array = jnp.array(actions)     
 
         return action_array
 
@@ -78,7 +96,6 @@ def evaluate_genome(genome):
     env_cfg = info["params"]
 
     # Initialise agents
-    #player_0 = Agent("player_0", env_cfg)
     player_0 = NeatBot("player_0",env_cfg,genome=genome)
     player_1 = Agent("player_1", env_cfg)
 
@@ -87,19 +104,18 @@ def evaluate_genome(genome):
     total_fitness2 = 0.0
     step = 0
     while not done:
-      actions = {}
-      for agent in [player_0, player_1]:
-        actions[agent.player] = agent.act(step=step, obs=obs[agent.player])
+        actions = {}
+        for agent in [player_0, player_1]:
+            actions[agent.player] = agent.act(step=step, obs=obs[agent.player])
 
-      obs, reward ,terminated, truncated, info = env.step(actions)
-      doneDict = {k: terminated[k] | truncated[k] for k in terminated}
-      step += 1
-      done = (doneDict["player_0"] and doneDict["player_1"])
-    
-      print(f'Step: {step}, Reward0: {total_fitness},Reward1: {total_fitness2}')
-      if (step % 20):
-          total_fitness += reward['player_0'] #bot is player 0
-          total_fitness2 += reward['player_1'] #agent is player 1
+        obs, reward ,terminated, truncated, info = env.step(actions)
+        doneDict = {k: terminated[k] | truncated[k] for k in terminated}
+        step += 1
+        done = (doneDict["player_0"] and doneDict["player_1"])
+        if (step == 505):
+            print(f'Step: {step}, Reward0: {total_fitness},Reward1: {total_fitness2}')
+        total_fitness += reward['player_0'] #bot is player 0
+        total_fitness2 += reward['player_1'] #agent is player 1
         
    
     genome.fitness = total_fitness
@@ -118,10 +134,10 @@ def evaluate_population(population):
 # ------------------------------
 
 def main():
-    num_inputs = 20 # SUBSTITUTE WITH ACTUAL NUMBER OF INPUTS
-    num_outputs = 3 # SUBSTITUE WITH ACTUAL NUMBER OF OUTPUTS
-    population_size = 50
-    generations = 2
+    num_inputs = 1880 # SUBSTITUTE WITH ACTUAL NUMBER OF INPUTS
+    num_outputs =  16 # Number of outputs
+    population_size = 2
+    generations = 1
     percent_saved = 0.6
 
     pop = population.Population(size=population_size, num_inputs=num_inputs, num_outputs=num_outputs)
