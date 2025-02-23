@@ -1,0 +1,17 @@
+{"time":"2025-02-23T14:44:17.862361Z","level":"INFO","msg":"using version","core version":"0.18.5"}
+{"time":"2025-02-23T14:44:17.862361Z","level":"INFO","msg":"created symlink","path":"C:\\Users\\ahmad\\Desktop\\lux\\wandb\\run-20250223_144417-jbe2t366\\logs\\debug-core.log"}
+{"time":"2025-02-23T14:44:17.9727799Z","level":"INFO","msg":"created new stream","id":"jbe2t366"}
+{"time":"2025-02-23T14:44:17.9727799Z","level":"INFO","msg":"stream: started","id":"jbe2t366"}
+{"time":"2025-02-23T14:44:17.9727799Z","level":"INFO","msg":"sender: started","stream_id":"jbe2t366"}
+{"time":"2025-02-23T14:44:17.9727799Z","level":"INFO","msg":"handler: started","stream_id":{"value":"jbe2t366"}}
+{"time":"2025-02-23T14:44:17.9727799Z","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"jbe2t366"}}
+{"time":"2025-02-23T14:44:18.2801938Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-23T14:45:21.4258543Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-02-23T14:45:21.4263593Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-02-23T14:45:22.2002022Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-02-23T14:45:22.4251547Z","level":"INFO","msg":"handler: operation stats","stats":{}}
+{"time":"2025-02-23T14:45:23.43799Z","level":"INFO","msg":"stream: closing","id":"jbe2t366"}
+{"time":"2025-02-23T14:45:23.43799Z","level":"INFO","msg":"handler: closed","stream_id":{"value":"jbe2t366"}}
+{"time":"2025-02-23T14:45:23.43799Z","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"jbe2t366"}}
+{"time":"2025-02-23T14:45:23.43799Z","level":"INFO","msg":"sender: closed","stream_id":"jbe2t366"}
+{"time":"2025-02-23T14:45:23.43799Z","level":"INFO","msg":"stream: closed","id":"jbe2t366"}

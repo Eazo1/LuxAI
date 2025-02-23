@@ -1,0 +1,17 @@
+Starting training...
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 100, training loss: 0.6068
+Validation loss: 0.6340
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 200, training loss: 0.6854
+Validation loss: 0.6175
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 300, training loss: 0.5265
+Validation loss: 0.5706
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 400, training loss: 0.4816
+Validation loss: 0.5273
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 500, training loss: 0.4600
+Validation loss: 0.4929
+Model saved to C:/Users/ahmad/Desktop/lux/GOM_autoencoder_model.pth

@@ -1,0 +1,152 @@
+Starting training...
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 100, training loss: 0.5924
+Validation loss: 0.6339
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 200, training loss: 0.6080
+Validation loss: 0.6241
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 300, training loss: 0.6201
+Validation loss: 0.6193
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 400, training loss: 0.5624
+Validation loss: 0.6167
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 500, training loss: 0.7182
+Validation loss: 0.6130
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 600, training loss: 0.6253
+Validation loss: 0.6092
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 700, training loss: 0.5894
+Validation loss: 0.6079
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 800, training loss: 0.6410
+Validation loss: 0.6072
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 900, training loss: 0.5988
+Validation loss: 0.6063
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 1000, training loss: 0.6450
+Validation loss: 0.6059
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 1100, training loss: 0.5704
+Validation loss: 0.6058
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 1200, training loss: 0.5629
+Validation loss: 0.6072
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 1300, training loss: 0.5986
+Validation loss: 0.6031
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 1400, training loss: 0.6269
+Validation loss: 0.6026
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 1500, training loss: 0.5666
+Validation loss: 0.6039
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 1600, training loss: 0.6186
+Validation loss: 0.6019
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 1700, training loss: 0.5915
+Validation loss: 0.6019
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 1800, training loss: 0.5928
+Validation loss: 0.6050
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 1900, training loss: 0.6167
+Validation loss: 0.6012
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 2000, training loss: 0.6166
+Validation loss: 0.6009
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 2100, training loss: 0.6504
+Validation loss: 0.6020
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 2200, training loss: 0.6418
+Validation loss: 0.6031
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 2300, training loss: 0.5979
+Validation loss: 0.6002
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 2400, training loss: 0.6347
+Validation loss: 0.6012
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 2500, training loss: 0.5808
+Validation loss: 0.6007
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 2600, training loss: 0.6041
+Validation loss: 0.6022
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 2700, training loss: 0.6544
+Validation loss: 0.6018
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 2800, training loss: 0.5943
+Validation loss: 0.6017
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 2900, training loss: 0.6335
+Validation loss: 0.6005
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 3000, training loss: 0.6782
+Validation loss: 0.6008
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 3100, training loss: 0.6046
+Validation loss: 0.6019
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 3200, training loss: 0.5731
+Validation loss: 0.6000
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 3300, training loss: 0.5661
+Validation loss: 0.6002
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 3400, training loss: 0.5718
+Validation loss: 0.6001
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 3500, training loss: 0.6092
+Validation loss: 0.6001
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 3600, training loss: 0.5875
+Validation loss: 0.6035
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 3700, training loss: 0.6321
+Validation loss: 0.5998
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 3800, training loss: 0.5803
+Validation loss: 0.6008
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 3900, training loss: 0.5542
+Validation loss: 0.5998
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 4000, training loss: 0.6158
+Validation loss: 0.5996
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 4100, training loss: 0.5420
+Validation loss: 0.5999
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 4200, training loss: 0.5675
+Validation loss: 0.6010
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 4300, training loss: 0.5807
+Validation loss: 0.6022
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 4400, training loss: 0.5392
+Validation loss: 0.5996
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 4500, training loss: 0.5631
+Validation loss: 0.6003
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 4600, training loss: 0.5607
+Validation loss: 0.5998
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 4700, training loss: 0.5134
+Validation loss: 0.6010
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 4800, training loss: 0.5683
+Validation loss: 0.6016
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 4900, training loss: 0.5697
+Validation loss: 0.5999
+Reconstructed shape: torch.Size([4, 3, 49, 49]), Target shape: torch.Size([4, 49, 49])
+Iteration 5000, training loss: 0.6305
+Validation loss: 0.5993
+Model saved to C:/Users/ahmad/Desktop/lux/GOM_autoencoder_model.pth

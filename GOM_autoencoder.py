@@ -23,7 +23,10 @@ class MemoryMappedDataset(Dataset):
 
     def __getitem__(self, idx):
         # Returns a tensor in the shape stored in the npy file.
-        return torch.tensor(self.data[idx], dtype=torch.float32)
+        raw_data = torch.tensor(self.data[idx], dtype=torch.long)  
+        return F.one_hot(raw_data, num_classes=3).permute(2, 0, 1).float()
+
+    
 
 data_path = 'C:/Users/ahmad/Desktop/lux/GOM_seed_dataset/'
 
@@ -89,7 +92,7 @@ class ResidualStack(nn.Module):
 class Encoder(nn.Module):
     def __init__(self, num_hiddens, num_residual_layers, num_residual_hiddens, latent_dim=64):
         super(Encoder, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=1, out_channels=num_hiddens // 2, kernel_size=4, stride=2, padding=1)
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=num_hiddens // 2, kernel_size=4, stride=2, padding=1)
         self.conv2 = nn.Conv2d(in_channels=num_hiddens // 2, out_channels=num_hiddens // 4, kernel_size=4, stride=2, padding=1)
         self.conv2b = nn.Conv2d(in_channels=num_hiddens // 4, out_channels=latent_dim, kernel_size=4, stride=2, padding=1)
         self.conv3 = nn.Conv2d(in_channels=latent_dim, out_channels=latent_dim, kernel_size=3, stride=1, padding=1)
@@ -115,7 +118,7 @@ class Decoder(nn.Module):
         self.residual_stack = ResidualStack(num_hiddens, num_residual_layers, num_residual_hiddens)
         
         self.conv_trans1 = nn.ConvTranspose2d(in_channels=num_hiddens, out_channels=num_hiddens // 2, kernel_size=4, stride=2, padding=1)
-        self.conv_trans2 = nn.ConvTranspose2d(in_channels=num_hiddens // 2, out_channels=1, kernel_size=4, stride=2, padding=1)
+        self.conv_trans2 = nn.ConvTranspose2d(in_channels=num_hiddens // 2, out_channels=3, kernel_size=4, stride=2, padding=1)
         #self.conv_trans2 = nn.ConvTranspose2d(in_channels=num_hiddens // 2, out_channels=2, kernel_size=4, stride=2, padding=1)
 
 
@@ -126,6 +129,7 @@ class Decoder(nn.Module):
         x = self.conv_trans2(x)
         # Dynamically resize to match original input size
         x = F.interpolate(x, size=target_size, mode="bilinear", align_corners=False)
+        #x = F.softmax(x, dim=1)
         return x
 
 # Autoencoder class
@@ -140,17 +144,24 @@ class Autoencoder(nn.Module):
         z = self.encoder(x)
         x_recon = self.decoder(z, original_size)  # Pass original size to decoder
         return x_recon
+    
+    ###
+    def reconstruct(self, x):
+        with torch.no_grad():
+            prob_output = self.forward(x)
+            discrete_output = torch.argmax(prob_output, dim=1)
+        return discrete_output
 
 ####################################################################################################################
 
 # Setup parameters
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-latent_dim = 15
+latent_dim = 10
 num_hiddens = 256
 num_residual_layers = 2
 num_residual_hiddens = 32
 learning_rate = 2e-4
-num_training_updates = 3000
+num_training_updates = 5000
 
 wandb.login(key="7391c065d23aad000052bc1f7a3a512445ae83d0")
 wandb.init(
@@ -170,35 +181,35 @@ autoencoder = Autoencoder(num_hiddens, num_residual_layers, num_residual_hiddens
 optimizer = optim.Adam(autoencoder.parameters(), lr=learning_rate)
 
 # Training loop
+criterion = nn.CrossEntropyLoss()
 train_losses = []
 iteration = 0
 autoencoder.train()
 print("Starting training...")
 while iteration < num_training_updates:
     for goms in train_loader:
-        # Debug print: show shape before processing.
-        #print("Shape of GOMS before processing:", goms.shape)
-        
-        # If the tensor has 5 dimensions (e.g., [batch, 1, 1, H, W]), remove the extra dimension.
-        if goms.dim() == 5:
-            goms = goms.squeeze(2)  # Remove the extra dimension at index 2.
-        # If goms come in as 3D (i.e., missing the channel dimension), add one.
-        elif goms.dim() == 3:
-            goms = goms.unsqueeze(1)
-        
         goms = goms.to(device)
 
         optimizer.zero_grad()
         recon = autoencoder(goms)
-        loss = F.mse_loss(recon, goms, reduction='sum')
+        
+        #print("Unique values in recon:", torch.unique(recon))
+        
+        target = torch.argmax(goms, dim=1)  # Shape: (batch, H, W)
+        loss = criterion(recon, target)
         loss.backward()
         optimizer.step()
 
         train_losses.append(loss.item())
-        wandb.log({"train/loss": loss.item()})
+        wandb.log({
+            "train/loss": loss.item(),
+            "losses/train": loss.item()
+        })  
+
         iteration += 1
 
         if iteration % 100 == 0:
+            print(f"Reconstructed shape: {recon.shape}, Target shape: {target.shape}")
             print(f"Iteration {iteration}, training loss: {loss.item():.4f}")
         if iteration >= num_training_updates:
             break
@@ -210,17 +221,19 @@ while iteration < num_training_updates:
         num_batches = 0
         for val_goms in valid_loader:
             # Apply the same dimension fix as above.
-            if val_goms.dim() == 5:
-                val_goms = val_goms.squeeze(2)
-            elif val_goms.dim() == 3:
-                val_goms = val_goms.unsqueeze(1)
             val_goms = val_goms.to(device)
+            
             recon_val = autoencoder(val_goms)
-            loss_val = F.mse_loss(recon_val, val_goms, reduction='sum')
+            target_val = torch.argmax(val_goms, dim=1)  
+            loss_val = criterion(recon_val, target_val)
             total_val_loss += loss_val.item()
             num_batches += 1
         avg_val_loss = total_val_loss / num_batches if num_batches > 0 else 0.0
-        wandb.log({"validation/loss": avg_val_loss})
+        wandb.log({
+            "validation/loss": avg_val_loss,
+            "losses/val": avg_val_loss
+        })
+        
         print(f"Validation loss: {avg_val_loss:.4f}")
     autoencoder.train()
 
@@ -229,22 +242,21 @@ autoencoder.eval()
 with torch.no_grad():
     for goms in valid_loader:
         # Again, fix the shape if needed.
-        if goms.dim() == 5:
-            goms = goms.squeeze(2)
-        elif goms.dim() == 3:
+        if goms.dim() == 3:
             goms = goms.unsqueeze(1)
         goms = goms.to(device)
-        recon_goms = autoencoder(goms)
+        recon_goms = autoencoder.reconstruct(goms)
         break
 
 # Plot the first few matrices and their reconstructions
+original_goms = torch.argmax(goms, dim=1)
 num_plots = 4
 fig, axes = plt.subplots(2, num_plots, figsize=(15, 5))
 for i in range(num_plots):
-    axes[0, i].imshow(goms[i, 0].cpu().numpy(), cmap='viridis')
+    axes[0, i].imshow(original_goms[i].cpu().numpy(), cmap='viridis')
     axes[0, i].set_title('Original')
     axes[0, i].axis('off')
-    axes[1, i].imshow(recon_goms[i, 0].cpu().numpy(), cmap='viridis')
+    axes[1, i].imshow(recon_goms[i].cpu().numpy(), cmap='viridis')
     axes[1, i].set_title('Reconstruction')
     axes[1, i].axis('off')
 

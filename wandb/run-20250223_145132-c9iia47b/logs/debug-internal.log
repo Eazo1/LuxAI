@@ -1,0 +1,17 @@
+{"time":"2025-02-23T14:51:32.1705477Z","level":"INFO","msg":"using version","core version":"0.18.5"}
+{"time":"2025-02-23T14:51:32.1705477Z","level":"INFO","msg":"created symlink","path":"C:\\Users\\ahmad\\Desktop\\lux\\wandb\\run-20250223_145132-c9iia47b\\logs\\debug-core.log"}
+{"time":"2025-02-23T14:51:32.2821075Z","level":"INFO","msg":"created new stream","id":"c9iia47b"}
+{"time":"2025-02-23T14:51:32.2823759Z","level":"INFO","msg":"stream: started","id":"c9iia47b"}
+{"time":"2025-02-23T14:51:32.2823759Z","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"c9iia47b"}}
+{"time":"2025-02-23T14:51:32.2823759Z","level":"INFO","msg":"sender: started","stream_id":"c9iia47b"}
+{"time":"2025-02-23T14:51:32.2823759Z","level":"INFO","msg":"handler: started","stream_id":{"value":"c9iia47b"}}
+{"time":"2025-02-23T14:51:32.5426309Z","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-23T14:53:45.9745509Z","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-02-23T14:53:45.9755975Z","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-02-23T14:53:46.7668729Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-02-23T14:53:46.9635094Z","level":"INFO","msg":"handler: operation stats","stats":{}}
+{"time":"2025-02-23T14:53:47.9848129Z","level":"INFO","msg":"stream: closing","id":"c9iia47b"}
+{"time":"2025-02-23T14:53:47.9848129Z","level":"INFO","msg":"handler: closed","stream_id":{"value":"c9iia47b"}}
+{"time":"2025-02-23T14:53:47.9848129Z","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"c9iia47b"}}
+{"time":"2025-02-23T14:53:47.9848129Z","level":"INFO","msg":"sender: closed","stream_id":"c9iia47b"}
+{"time":"2025-02-23T14:53:47.9848129Z","level":"INFO","msg":"stream: closed","id":"c9iia47b"}
