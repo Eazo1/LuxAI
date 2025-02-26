@@ -1,0 +1,64 @@
+# Exclude dataset and wandb tracking
+/GOM_seed_dataset/
+/wandb/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env/
+*.env
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Logs and debugging files
+logs/
+*.log
+
+# Package and dependency directories
+pip-wheel-metadata/
+dist/
+build/
+*.egg-info/
+
+# Data files
+*.csv
+*.json
+*.xml
+*.h5
+*.hdf5
+*.pkl
+*.joblib
+*.npy
+
+# Model and weights
+*.ckpt
+*.pth
+*.pt
+*.hdf5
+*.onnx
+
+# TensorBoard logs
+runs/
+
+# Cache and temporary files
+.cache/
+*.bak
+*.swp
+
+# VS Code and other editor settings
+.vscode/
+*.idea/
+*.sublime-workspace
+
+# Docker and deployment
+*.dockerignore
+*.envrc
+
+# Misc
+.DS_Store
+Thumbs.db
