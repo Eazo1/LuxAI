@@ -1,7 +1,0 @@
-Starting training...
-Shape of GOMS before processing: torch.Size([4, 49, 49])
-Traceback (most recent call last):
-  File "C:\Users\ahmad\Desktop\lux\GOM_autoencoder.py", line 184, in <module>
-    elif goms.dim() == 3:
-         ^^^^
-NameError: name 'goms' is not defined
