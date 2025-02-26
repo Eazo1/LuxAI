@@ -37,7 +37,6 @@ build/
 
 # Model and weights
 *.ckpt
-*.pth
 *.pt
 *.hdf5
 *.onnx
@@ -62,3 +61,4 @@ runs/
 # Misc
 .DS_Store
 Thumbs.db
+*.png
