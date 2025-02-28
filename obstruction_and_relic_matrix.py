@@ -102,7 +102,9 @@ class GrandObstructionMatrix():
     self.obstruction_direction = 1  # Default value
     for i in range(size):
       for j in range(size):
-        self.data[i, j] = np.zeros(self.node_info_size)  
+        self.data[i, j] = np.zeros(self.node_info_size)
+        #self.data[i][j] = np.array([obs["map_features"]["tile_type"][i][j], 
+                            #obs["map_features"]["energy"][i][j]], obs["sensor_mask"][i]
 
   def set_obstruction_direction(self, direction):
     self.obstruction_direction = direction
@@ -188,6 +190,104 @@ class GrandObstructionMatrix():
                                                               (total_size - 24 - obstruction_movement_step) : (total_size - obstruction_movement_step)]
       
     return obstruction_matrix_iteration
+
+class GrandObstructionMatrixTest():
+  
+  #I need to double check if this class has everything it needs
+  def __init__(self, size, obs, node_info_size=3, obstruction_direction=1):
+    self.size = size
+    self.node_info_size = node_info_size
+    self.data = np.zeros((size, size), dtype=object)
+
+    for i in range(size):
+        for j in range(size):
+            self.data[i][j] = np.array([obs["map_features"]["tile_type"][i][j], 
+                                        obs["map_features"]["energy"][i][j]], obs["sensor_mask"][i][j])
+  # Placeholder so we can just pass in the flattened GOM before the AE is created
+  def get_data(self):
+    return self.data  
+
+  def get_entangled_iteration_index(self, iteration_i, iteration_j):
+    return 24 - iteration_j - 1, 24 - iteration_i - 1
+  
+  def get_entangled_tiles_iteration_index(self, iteration_i, iteration_j):
+    
+    negative_side_n = (iteration_i//24)
+    positive_side_n = (self.size - iteration_i)//24
+    
+    negative_side_m = (iteration_j//24)
+    positive_side_m = (self.size - iteration_j)//24
+    
+    list_of_n = [n for n in range(-negative_side_n, positive_side_n + 1)]
+    list_of_m = [m for m in range(-negative_side_m, positive_side_m + 1)]
+        
+    list_of_indices = [(iteration_i + n * 24, iteration_j + m * 24) for n in list_of_n for m in list_of_m if 0 <= (iteration_i + n * 24) < self.size and 0 <= (iteration_j + m * 24) < self.size]
+    
+    return list_of_indices
+    
+  def safe_update(self, i, j, discrete_values):
+    if 0 <= i < self.size and 0 <= j < self.size:
+      self.data[i, j] = np.array(discrete_values)
+
+  def set_index_value(self, map_iteration_period, time_iteration, iteration_index, discrete_values):
+    obstruction_movement_step = time_iteration // map_iteration_period  # integer division
+    iteration_i, iteration_j = iteration_index
+
+    anti_iteration_i, anti_iteration_j = self.get_entangled_iteration_index(iteration_i, iteration_j)
+    entangled_tile_indices = self.get_entangled_tiles_iteration_index(iteration_i, iteration_j)
+
+    if obstruction_direction == 1:
+      target_i = (self.size - 24 - obstruction_movement_step + iteration_i) % self.size
+      target_j = (obstruction_movement_step + iteration_j) % self.size
+      self.safe_update(target_i, target_j, discrete_values)
+      
+      target_i = (self.size - 24 - obstruction_movement_step + anti_iteration_i) % self.size
+      target_j = (obstruction_movement_step + anti_iteration_j) % self.size
+      self.safe_update(target_i, target_j, discrete_values)
+        
+      for tile_i, tile_j in entangled_tile_indices:
+        tile_anti_i, tile_anti_j = self.get_entangled_iteration_index(tile_i, tile_j)
+        self.safe_update((self.size - 24 - obstruction_movement_step + tile_i) % self.size,
+                          (obstruction_movement_step + tile_j) % self.size, discrete_values)
+        self.safe_update((self.size - 24 - obstruction_movement_step + tile_anti_i) % self.size,
+                          (obstruction_movement_step + tile_anti_j) % self.size, discrete_values)
+    else:
+      self.safe_update((obstruction_movement_step + iteration_i) % self.size,
+                        (self.size - 24 - obstruction_movement_step + iteration_j) % self.size, discrete_values)
+      self.safe_update((obstruction_movement_step + anti_iteration_i) % self.size,
+                        (self.size - 24 - obstruction_movement_step + anti_iteration_j) % self.size, discrete_values)
+        
+      for tile_i, tile_j in entangled_tile_indices:
+        tile_anti_i, tile_anti_j = self.get_entangled_iteration_index(tile_i, tile_j)
+        self.safe_update((obstruction_movement_step + tile_i) % self.size,
+                          (self.size - 24 - obstruction_movement_step + tile_j) % self.size, discrete_values)
+        self.safe_update((obstruction_movement_step + tile_anti_i) % self.size,
+                          (self.size - 24 - obstruction_movement_step + tile_anti_j) % self.size, discrete_values)
+    
+  
+  def get_index_value(self, index):
+      i, j = index
+      
+      if not (0 <= i < self.size and 0 <= j < self.size):
+          raise IndexError("Index out of bounds.")
+
+      return self.data[i, j]
+  
+  def get_obstruction_matrix_iteration (self, map_iteration_period, time_iteration):
+    total_size = self.size
+    
+    obstruction_movement_step = time_iteration // map_iteration_period # make sure // is correct here (for the game)
+    
+    if obstruction_direction == 1:
+      obstruction_matrix_iteration = self.data[(total_size - 24 - obstruction_movement_step) : (total_size - obstruction_movement_step),
+                                                              (obstruction_movement_step) : (24 + obstruction_movement_step)]
+    else:
+      obstruction_matrix_iteration = self.data[(obstruction_movement_step) : (24 + obstruction_movement_step),
+                                                              (total_size - 24 - obstruction_movement_step) : (total_size - obstruction_movement_step)]
+      
+    return obstruction_matrix_iteration
+
+
 
 '''# Trial simulatizon
 
