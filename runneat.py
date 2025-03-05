@@ -105,6 +105,7 @@ class NeatBot:
         relic_info = np.flatten(obs["relic_nodes"])
         final_inputs = np.concatente(unit_information, flattened_GOM, relic_info, points_gained) # All these objects need to be a 1D arrays
 
+        # Final number of inputs = 48 + 12 + 2 + flattened GOM  
         self.ally_score = obs["team_points"][0]
         self.ally_score = obs["team_points"][1] # The code for team points relies on the assumption that ally score is always first in the list
 
@@ -113,7 +114,7 @@ class NeatBot:
     def interpret_outputs(self, outputs):
         '''Takes the outputs of genome and applies softmax to decide moves'''
         num_units = 16  # Assume max 16 units to control
-        num_actions = 6  # Each unit can take 3 possible actions
+        num_actions = 6  # Each unit can take 6 possible actions
 
         # Convert neural network outputs into a discrete action for each unit
         actions = np.zeros((num_units, 3), dtype=int)
@@ -166,8 +167,6 @@ def evaluate_genome(genome):
             ally_tally = player_0.get_ally_score()
             enemy_tally = player_0.get_enemy_score()
         done = (doneDict["player_0"] and doneDict["player_1"])
-        if (step == 505):
-            print(f'Step: {step}, Reward0: {total_fitness},Reward1: {total_fitness2}')
         total_fitness += reward['player_0'] #bot is player 0
         total_fitness2 += reward['player_1'] #agent is player 1
         
