@@ -161,16 +161,12 @@ def evaluate_genome(genome):
         obs, reward ,terminated, truncated, info = env.step(actions)
         doneDict = {k: terminated[k] | truncated[k] for k in terminated}
         step += 1
-        if step // 30 == 0:
-            total_fitness += player_0.get_ally_score()-ally_tally-player_0.get_ally_score()-enemy_tally
+        if step // 20 == 0:
+            total_fitness += (player_0.get_ally_score()-ally_tally)-(player_0.get_enemy_score()-enemy_tally)
 
             ally_tally = player_0.get_ally_score()
             enemy_tally = player_0.get_enemy_score()
         done = (doneDict["player_0"] and doneDict["player_1"])
-        total_fitness += reward['player_0'] #bot is player 0
-        total_fitness2 += reward['player_1'] #agent is player 1
-        
-   
     genome.fitness = total_fitness
     return total_fitness
 
