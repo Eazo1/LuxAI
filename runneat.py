@@ -107,7 +107,7 @@ class NeatBot:
 
         # Final number of inputs = 48 + 12 + 2 + flattened GOM  
         self.ally_score = obs["team_points"][0]
-        self.ally_score = obs["team_points"][1] # The code for team points relies on the assumption that ally score is always first in the list
+        self.enemy_score = obs["team_points"][1] # The code for team points relies on the assumption that ally score is always first in the list
 
         return flatten_structure(list(obs.values()))
 
@@ -167,6 +167,10 @@ def evaluate_genome(genome):
             ally_tally = player_0.get_ally_score()
             enemy_tally = player_0.get_enemy_score()
         done = (doneDict["player_0"] and doneDict["player_1"])
+        if obs["team_wins"][0] == 3:
+            total_fitness += 10
+        if obs["team_wins"][1] == 3:
+            total_fitness -= 10
     genome.fitness = total_fitness
     return total_fitness
 
