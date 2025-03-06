@@ -58,6 +58,7 @@ class NeatBot:
     def get_enemy_score(self):
         return self.enemy_score
     
+    
     def act(self, step: int, obs, remainingOverageTime: int = 60):
         """
         Take the different information, craft a set of usable input parameters and find output
@@ -83,6 +84,17 @@ class NeatBot:
         #updating GOM
         time_iteration = obs["steps"]
         map_iteration_period = 6.67
+
+        ally_index = 0
+        enemy_index = 0
+
+        if self.player == "player_0":
+            ally_index = 0
+            enemy_index = 1
+        else:
+            ally_index = 1
+            enemy_index = 0
+
         for i in range(24):
             for j in range(24):
                 iteration_index = (i,j)
@@ -101,13 +113,13 @@ class NeatBot:
         # Then I would flatten this input (just keeping spatial data) and combaine this with the unit information
 
         flattened_GOM = np.flatten(self.GOM.get_data)
-        points_gained = np.array([obs["team_points"][0]-self.ally_score, obs["team_points"][1]-self.enemy_score]) #
+        points_gained = np.array([obs["team_points"][ally_index]-self.ally_score, obs["team_points"][enemy_index]-self.enemy_score]) #
         relic_info = np.flatten(obs["relic_nodes"])
         final_inputs = np.concatente(unit_information, flattened_GOM, relic_info, points_gained) # All these objects need to be a 1D arrays
 
         # Final number of inputs = 48 + 12 + 2 + flattened GOM  
-        self.ally_score = obs["team_points"][0]
-        self.enemy_score = obs["team_points"][1] # The code for team points relies on the assumption that ally score is always first in the list
+        self.ally_score = obs["team_points"][ally_index]
+        self.enemy_score = obs["team_points"][enemy_index] # The code for team points relies on the assumption that ally score is always first in the list
 
         return flatten_structure(list(obs.values()))
 
@@ -141,14 +153,27 @@ def evaluate_genome(genome):
     env = LuxAIS3GymEnv(numpy_output=True)
     obs, info = env.reset()
     env_cfg = info["params"]
+    random_number = random.randint(0,1)
+    ally_index = 0
+    enemy_index = 0
+    if random_number == 0:
+        ally_index = 0
+        enemy_index = 1
+        player_0 = NeatBot("player_0",env_cfg, obs, genome=genome)
+        player_1 = Agent("player_1", env_cfg)
+    else:
+        enemy_index = 0
+        ally_index = 1
+        player_1 = NeatBot("player_0",env_cfg, obs, genome=genome)
+        player_0 = Agent("player_1", env_cfg)
 
     # Initialise agents
-    player_0 = NeatBot("player_0",env_cfg, obs, genome=genome)
-    player_1 = Agent("player_1", env_cfg)
+    # player_0 = NeatBot("player_0",env_cfg, obs, genome=genome)
+    # player_1 = Agent("player_1", env_cfg)
 
     done = False
     total_fitness = 0.0
-    total_fitness2 = 0.0
+    #total_fitness2 = 0.0
     step = 0
 
     ally_tally = 0
@@ -167,9 +192,9 @@ def evaluate_genome(genome):
             ally_tally = player_0.get_ally_score()
             enemy_tally = player_0.get_enemy_score()
         done = (doneDict["player_0"] and doneDict["player_1"])
-        if obs["team_wins"][0] == 3:
+        if obs["team_wins"][ally_index] == 3:
             total_fitness += 10
-        if obs["team_wins"][1] == 3:
+        if obs["team_wins"][enemy_index] == 3:
             total_fitness -= 10
     genome.fitness = total_fitness
     return total_fitness
