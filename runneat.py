@@ -124,13 +124,13 @@ class NeatBot:
         for i in range(24):
             for j in range(24):
                 iteration_index = (i,j)
-                discrete_values = np.array([obs["map_features"]["tile_type"][i][j], obs["map_features"]["energy"][i][j]])
+                discrete_values = np.array([obs["map_features"]["tile_type"][i][j]])
                 iteration_i, iteration_j = self.GOM.get_entangled_iteration_index(i, j)
                 current_cell_state = self.GOM.get_index_value((iteration_i, iteration_j))
-                if current_cell_state[0] != -1:
-                    discrete_values[0] = current_cell_state[0]
-                if current_cell_state[1] != -1:
-                    discrete_values[1] = current_cell_state[1]
+                if current_cell_state != -1:
+                    discrete_values[0] = current_cell_state
+                # if current_cell_state[1] != -1:
+                #     discrete_values[1] = current_cell_state[1]
 
                 self.GOM.set_index_value(map_iteration_period, time_iteration, iteration_index, discrete_values)
 
@@ -141,24 +141,25 @@ class NeatBot:
         gom_data = self.GOM.get_data()  # Get the current GOM matrix
 
         # Convert GOM data to a format suitable for the encoder (HWC -> CHW format)
-        #gom_data = np.expand_dims(gom_data, axis=0)  # Add batch dimension
-        gom_tensor = torch.tensor(gom_data, dtype=torch.long)
+        gom_data = np.expand_dims(gom_data, axis=0)  # Add batch dimension
+        gom_tensor = torch.tensor(gom_data, dtype=torch.float32)
+        # gom_tensor = gom_tensor + 1
         # gom_tensor = F.one_hot(gom_tensor, num_classes=3).permute(2, 0, 1).unsqueeze(0).float().to(device)
-        print(gom_tensor.shape)
-        gom_tensor = F.one_hot(torch.tensor(gom_data, dtype=torch.long), num_classes=4).permute(2,0,1).float()  # Now (4,49,49)
+        # gom_tensor = F.one_hot(gom_tensor, num_classes=4).permute(0, 3, 1, 2).unsqueeze(0).float().to(device)
+        # print(gom_tensor.shape)
+        # gom_tensor = F.one_hot(torch.tensor(gom_data, dtype=torch.long), num_classes=4).permute(2,0,1).float()  # Now (4,49,49)
         #gom_tensor = F.one_hot(torch.from_numpy(gom_data).long(), num_classes=3).unsqueeze(0).permute(0, 3, 1, 2).float().to(device)
 
         # Run the GOM data through the Encoder directly to extract latent features
         with torch.no_grad():
             #gom_tensor = torch.from_numpy(gom_data).to(device)  # Convert NumPy array to PyTorch tensor
             latent_features = autoencoder.encoder(gom_tensor).cpu().numpy().flatten()  # Extract and flatten latent features
-        
         flattened_GOM = np.array(latent_features).flatten()
         points_gained = np.array([obs["team_points"][ally_index]-self.ally_score, obs["team_points"][enemy_index]-self.enemy_score]) #
         relic_info = np.array(obs["relic_nodes"]).flatten()
         final_inputs = np.concatenate([unit_information, flattened_GOM, relic_info, points_gained]) # All these objects need to be a 1D arrays
-
-        # Final number of inputs = 48 + 12 + 2 + flattened GOM  
+        # print(final_inputs.size)
+        # Final number of inputs = 48 + 12 + 2 + 360  
         self.ally_score = obs["team_points"][ally_index]
         self.enemy_score = obs["team_points"][enemy_index] # The code for team points relies on the assumption that ally score is always first in the list
 
@@ -228,15 +229,28 @@ def evaluate_genome(genome):
         doneDict = {k: terminated[k] | truncated[k] for k in terminated}
         step += 1
         if step // 20 == 0:
-            total_fitness += (player_0.get_ally_score()-ally_tally)-(player_0.get_enemy_score()-enemy_tally)
+            if (ally_index == 0):
+                total_fitness += (player_0.get_ally_score()-ally_tally)-(player_0.get_enemy_score()-enemy_tally)
 
-            ally_tally = player_0.get_ally_score()
-            enemy_tally = player_0.get_enemy_score()
+                ally_tally = player_0.get_ally_score()
+                enemy_tally = player_0.get_enemy_score()
+            else:
+                total_fitness += (player_1.get_ally_score()-ally_tally)-(player_1.get_enemy_score()-enemy_tally)
+
+                ally_tally = player_1.get_ally_score()
+                enemy_tally = player_1.get_enemy_score()
+                
         done = (doneDict["player_0"] and doneDict["player_1"])
-        if obs["team_wins"][ally_index] == 3:
-            total_fitness += 10
-        if obs["team_wins"][enemy_index] == 3:
-            total_fitness -= 10
+        if ally_index == 0:
+            if obs["player_0"]["team_wins"][ally_index] == 3:
+                total_fitness += 10
+            if obs["player_0"]["team_wins"][enemy_index] == 3:
+                total_fitness -= 10
+        else:
+            if obs["player_1"]["team_wins"][ally_index] == 3:
+                total_fitness += 10
+            if obs["player_1"]["team_wins"][enemy_index] == 3:
+                total_fitness -= 10
     genome.fitness = total_fitness
     return total_fitness
 
@@ -253,7 +267,7 @@ def evaluate_population(population):
 # ------------------------------
 
 def main():
-    num_inputs = 1880 # SUBSTITUTE WITH ACTUAL NUMBER OF INPUTS
+    num_inputs = 470 # SUBSTITUTE WITH ACTUAL NUMBER OF INPUTS
     num_outputs =  16 # Number of outputs
     population_size = 2
     generations = 1

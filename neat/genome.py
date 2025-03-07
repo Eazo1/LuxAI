@@ -8,8 +8,8 @@ import random
 # ============================
 
 def normalize(values):
-    if not values:
-        return []
+    # if not values:
+    #     return []
     
     min_val, max_val = min(values), max(values)
     if min_val == max_val:

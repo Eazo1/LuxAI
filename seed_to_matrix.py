@@ -63,7 +63,7 @@ def create_and_save_grand_obstruction_matrix(num_matrices):
         map_iteration_period = 1/np.absolute(nebula_tile_drift_speed)
         grand_obstruction_matrix_size = 24 + (500 // int(map_iteration_period))
         obstruction_direction = np.sign(nebula_tile_drift_speed)
-        obstruction_matrix = obstruction_and_relic_matrix.GrandObstructionMatrixTest(grand_obstruction_matrix_size)
+        obstruction_matrix = obstruction_and_relic_matrix.GrandObstructionMatrix(grand_obstruction_matrix_size)
         obstruction_matrix.set_obstruction_direction(obstruction_direction)
         
         for i in range(map.shape[0]):

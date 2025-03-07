@@ -98,13 +98,11 @@ class GrandObstructionMatrix():
   def __init__(self, size, node_info_size=2, obstruction_direction=1):
     self.size = size
     self.node_info_size = node_info_size
-    self.data = np.zeros((int(size), int(size), node_info_size), dtype=np.float32)
+    self.data = np.zeros((int(size), int(size)), dtype=object)
     self.obstruction_direction = 1  # Default value
     for i in range(size):
       for j in range(size):
-        self.data[i, j] = np.zeros(self.node_info_size)
-        #self.data[i][j] = np.array([obs["map_features"]["tile_type"][i][j], 
-                            #obs["map_features"]["energy"][i][j]], obs["sensor_mask"][i]
+        self.data[i, j] = np.zeros(self.node_info_size)  
 
   def set_obstruction_direction(self, direction):
     self.obstruction_direction = direction
@@ -194,17 +192,16 @@ class GrandObstructionMatrix():
 class GrandObstructionMatrixTest():
   
   #I need to double check if this class has everything it needs
-  def __init__(self, size, obs, node_info_size=2, obstruction_direction=1):
+  def __init__(self, size, obs, node_info_size=1, obstruction_direction=1):
     self.size = size
     self.node_info_size = node_info_size
-    self.data = np.zeros((size, size, 2), dtype=np.float32)
+    self.data = np.zeros((size, size), dtype=np.float32)
     print(obs.keys())
-    for i in range(size):
-        for j in range(size):
-            self.data[i, j] = np.array([obs["map_features"]["tile_type"][i][j], 
-                                        obs["map_features"]["energy"][i][j]])
+    for i in range(24):
+        for j in range(24):
+            self.data[i, j] = np.array([obs["map_features"]["tile_type"][i][j]])
             
-  # def __init__(self, size, node_info_size=2, obstruction_direction=1):
+  # def __init__(self, size, node_info_size=1, obstruction_direction=1):
   #   self.size = size
   #   self.node_info_size = node_info_size
   #   self.data = np.zeros((int(size), int(size), node_info_size), dtype=np.float32)

@@ -7,11 +7,11 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
 import matplotlib.pyplot as plt
 import wandb
-# import obstruction_and_relic_matrix
-# import gen_map_from_game
-# import seed_to_matrix
+#import obstruction_and_relic_matrix
+#import gen_map_from_game
+#import seed_to_matrix
 
-#Note that GOM stands for Grand Obstruction Matrix
+# Note that GOM stands for Grand Obstruction Matrix
 
 class MemoryMappedDataset(Dataset):
     def __init__(self, mmap_data, device):
@@ -23,10 +23,8 @@ class MemoryMappedDataset(Dataset):
 
     def __getitem__(self, idx):
         # Returns a tensor in the shape stored in the npy file.
-        raw_data = self.data[idx][:,:,0]  # Choose just the first piece of information
-        raw_data = torch.tensor(raw_data, dtype=torch.long)  # Now (49,49)
-        one_hot = F.one_hot(raw_data, num_classes=4).permute(2,0,1).float()  # Now (4,49,49)
-        return one_hot
+        raw_data = torch.tensor(self.data[idx], dtype=torch.long)  
+        return F.one_hot(raw_data, num_classes=3).permute(2, 0, 1).float()
 
     
 
@@ -94,7 +92,7 @@ class ResidualStack(nn.Module):
 class Encoder(nn.Module):
     def __init__(self, num_hiddens, num_residual_layers, num_residual_hiddens, latent_dim=64):
         super(Encoder, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=4, out_channels=num_hiddens // 2, kernel_size=4, stride=2, padding=1)
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=num_hiddens // 2, kernel_size=4, stride=2, padding=1)
         self.conv2 = nn.Conv2d(in_channels=num_hiddens // 2, out_channels=num_hiddens // 4, kernel_size=4, stride=2, padding=1)
         self.conv2b = nn.Conv2d(in_channels=num_hiddens // 4, out_channels=latent_dim, kernel_size=4, stride=2, padding=1)
         self.conv3 = nn.Conv2d(in_channels=latent_dim, out_channels=latent_dim, kernel_size=3, stride=1, padding=1)
@@ -103,6 +101,8 @@ class Encoder(nn.Module):
         self.residual_stack = ResidualStack(latent_dim, num_residual_layers, num_residual_hiddens)
 
     def forward(self, x):
+        x = x.unsqueeze(0)  # Add batch dimension, shape [1, 49, 49]
+        x = x.repeat(1, 3, 1, 1)  # Repeat the single channel to create 3 channels, shape [1, 3, 49, 49]
         x = F.relu(self.conv1(x))
         x = F.relu(self.conv2(x))
         x = F.relu(self.conv2b(x)) 
@@ -120,7 +120,7 @@ class Decoder(nn.Module):
         self.residual_stack = ResidualStack(num_hiddens, num_residual_layers, num_residual_hiddens)
         
         self.conv_trans1 = nn.ConvTranspose2d(in_channels=num_hiddens, out_channels=num_hiddens // 2, kernel_size=4, stride=2, padding=1)
-        self.conv_trans2 = nn.ConvTranspose2d(in_channels=num_hiddens // 2, out_channels=4, kernel_size=4, stride=2, padding=1)
+        self.conv_trans2 = nn.ConvTranspose2d(in_channels=num_hiddens // 2, out_channels=3, kernel_size=4, stride=2, padding=1)
         #self.conv_trans2 = nn.ConvTranspose2d(in_channels=num_hiddens // 2, out_channels=2, kernel_size=4, stride=2, padding=1)
 
 
@@ -156,34 +156,31 @@ class Autoencoder(nn.Module):
 
 ####################################################################################################################
 
-# Setup parameters
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-latent_dim = 10
-num_hiddens = 256
-num_residual_layers = 2
-num_residual_hiddens = 32
-learning_rate = 2e-4
-num_training_updates = 1700
+# # Setup parameters
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# latent_dim = 10
+# num_hiddens = 256
+# num_residual_layers = 2
+# num_residual_hiddens = 32
+# learning_rate = 2e-4
+# num_training_updates = 5000
 
-'''wandb.login(key="7391c065d23aad000052bc1f7a3a512445ae83d0")
-wandb.init(
-    project="GOM_AE",
-    config={
-        "example_1_original_dim": len(train_dataset[0][0].flatten()),
-        "latent_dim": latent_dim,
-        "architecture": "AE",
-        "num_training_updates": num_training_updates,
-        "initial_learning_rate": learning_rate,
-    },
-    reinit=True,
-)
-'''
-# wandb.watch_called = False  # Re-run the model without restarting the runtime
+# wandb.login(key="7391c065d23aad000052bc1f7a3a512445ae83d0")
+# wandb.init(
+#     project="GOM_AE",
+#     config={
+#         "example_1_original_dim": len(train_dataset[0][0].flatten()),
+#         "latent_dim": latent_dim,
+#         "architecture": "AE",
+#         "num_training_updates": num_training_updates,
+#         "initial_learning_rate": learning_rate,
+#     },
+#     reinit=True,
+# )
+
 # # Instantiate AE and optimizer
 # autoencoder = Autoencoder(num_hiddens, num_residual_layers, num_residual_hiddens, latent_dim).to(device)
 # optimizer = optim.Adam(autoencoder.parameters(), lr=learning_rate)
-
-# # Make sure no training happens when the model is in evaluation mode
 
 # # Training loop
 # criterion = nn.CrossEntropyLoss()
@@ -206,10 +203,10 @@ wandb.init(
 #         optimizer.step()
 
 #         train_losses.append(loss.item())
-#         #wandb.log({
-#             #"train/loss": loss.item(),
-#             #"losses/train": loss.item()
-#         #})  
+#         wandb.log({
+#             "train/loss": loss.item(),
+#             "losses/train": loss.item()
+#         })  
 
 #         iteration += 1
 
@@ -234,10 +231,10 @@ wandb.init(
 #             total_val_loss += loss_val.item()
 #             num_batches += 1
 #         avg_val_loss = total_val_loss / num_batches if num_batches > 0 else 0.0
-#         #wandb.log({
-#         #    "validation/loss": avg_val_loss,
-#         #    "losses/val": avg_val_loss
-#         #})
+#         wandb.log({
+#             "validation/loss": avg_val_loss,
+#             "losses/val": avg_val_loss
+#         })
         
 #         print(f"Validation loss: {avg_val_loss:.4f}")
 #     autoencoder.train()
@@ -253,26 +250,26 @@ wandb.init(
 #         recon_goms = autoencoder.reconstruct(goms)
 #         break
 
-#Plot the first few matrices and their reconstructions
-'''original_goms = torch.argmax(goms, dim=1)
-num_plots = 4
-fig, axes = plt.subplots(2, num_plots, figsize=(15, 5))
-for i in range(num_plots):
-    axes[0, i].imshow(original_goms[i].cpu().numpy(), cmap='viridis')
-    axes[0, i].set_title('Original')
-    axes[0, i].axis('off')
-    axes[1, i].imshow(recon_goms[i].cpu().numpy(), cmap='viridis')
-    axes[1, i].set_title('Reconstruction')
-    axes[1, i].axis('off')
+# # Plot the first few matrices and their reconstructions
+# original_goms = torch.argmax(goms, dim=1)
+# num_plots = 4
+# fig, axes = plt.subplots(2, num_plots, figsize=(15, 5))
+# for i in range(num_plots):
+#     axes[0, i].imshow(original_goms[i].cpu().numpy(), cmap='viridis')
+#     axes[0, i].set_title('Original')
+#     axes[0, i].axis('off')
+#     axes[1, i].imshow(recon_goms[i].cpu().numpy(), cmap='viridis')
+#     axes[1, i].set_title('Reconstruction')
+#     axes[1, i].axis('off')
 
-plt.tight_layout()
-wandb.log({"Reconstructed GOMs": wandb.Image(fig)}, step=None)
-plt.savefig('C:/Users/ahmad/Desktop/lux/' + 'ex_reconstructions.png')
-plt.show()
-plt.close(fig)'''
+# plt.tight_layout()
+# wandb.log({"Reconstructed GOMs": wandb.Image(fig)}, step=None)
+# plt.savefig('C:/Users/ahmad/Desktop/lux/' + 'ex_reconstructions.png')
+# plt.show()
+# plt.close(fig)
 
 
-# #Save the model
+# # Save the model
 # save_directory = 'C:/Users/ahmad/Desktop/lux/'
 # model_save_path = os.path.join(save_directory, 'GOM_autoencoder_model.pth')
 # torch.save(autoencoder.state_dict(), model_save_path)
