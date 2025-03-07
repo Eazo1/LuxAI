@@ -79,7 +79,7 @@ class NeatBot:
         #functions to it first
 
         unit_information = np.concatenate((obs["units"]["position"], obs["units"]["energy"]), axis=2)
-        unit_information = np.flatten(unit_information) # Unit information extracted and flattend for NN
+        unit_information = unit_information.flatten() # Unit information extracted and flattend for NN
 
         #updating GOM
         time_iteration = obs["steps"]
@@ -112,10 +112,10 @@ class NeatBot:
         # At this point, the GOM has been updated I need the AE to transform it into better inputs
         # Then I would flatten this input (just keeping spatial data) and combaine this with the unit information
 
-        flattened_GOM = np.flatten(self.GOM.get_data)
+        flattened_GOM = self.GOM.get_data().flatten()
         points_gained = np.array([obs["team_points"][ally_index]-self.ally_score, obs["team_points"][enemy_index]-self.enemy_score]) #
-        relic_info = np.flatten(obs["relic_nodes"])
-        final_inputs = np.concatente(unit_information, flattened_GOM, relic_info, points_gained) # All these objects need to be a 1D arrays
+        relic_info = np.array(obs["relic_nodes"]).flatten()
+        final_inputs = np.concatenate(unit_information, flattened_GOM, relic_info, points_gained) # All these objects need to be a 1D arrays
 
         # Final number of inputs = 48 + 12 + 2 + flattened GOM  
         self.ally_score = obs["team_points"][ally_index]
@@ -164,8 +164,8 @@ def evaluate_genome(genome):
     else:
         enemy_index = 0
         ally_index = 1
-        player_1 = NeatBot("player_0",env_cfg, obs, genome=genome)
-        player_0 = Agent("player_1", env_cfg)
+        player_1 = NeatBot("player_1",env_cfg, obs, genome=genome)
+        player_0 = Agent("player_0", env_cfg)
 
     # Initialise agents
     # player_0 = NeatBot("player_0",env_cfg, obs, genome=genome)
