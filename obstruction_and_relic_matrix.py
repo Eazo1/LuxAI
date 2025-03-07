@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 map_iteration_period = 20 # Can be other values (must determine in game)
 grand_obstruction_matrix_size = 24 + (500 // map_iteration_period) # check if // is correct
-#obstruction_direction = 1 # Range {-1,1}, with 1 meaning the little matrix moves northeast, and -1 meaning it moves southwest
+obstruction_direction = 1 # Range {-1,1}, with 1 meaning the little matrix moves northeast, and -1 meaning it moves southwest
 
 class Unit_Ally:
   def __init__(self, unit_id, energy, index):
@@ -98,7 +98,7 @@ class GrandObstructionMatrix():
   def __init__(self, size, node_info_size=2, obstruction_direction=1):
     self.size = size
     self.node_info_size = node_info_size
-    self.data = np.zeros((int(size), int(size)), dtype=object)
+    self.data = np.zeros((int(size), int(size), node_info_size), dtype=np.float32)
     self.obstruction_direction = 1  # Default value
     for i in range(size):
       for j in range(size):
@@ -194,15 +194,28 @@ class GrandObstructionMatrix():
 class GrandObstructionMatrixTest():
   
   #I need to double check if this class has everything it needs
-  def __init__(self, size, obs, node_info_size=3, obstruction_direction=1):
+  def __init__(self, size, obs, node_info_size=2, obstruction_direction=1):
     self.size = size
     self.node_info_size = node_info_size
-    self.data = np.zeros((size, size), dtype=object)
-
+    self.data = np.zeros((size, size, 2), dtype=np.float32)
+    print(obs.keys())
     for i in range(size):
         for j in range(size):
-            self.data[i][j] = np.array([obs["map_features"]["tile_type"][i][j], 
-                                        obs["map_features"]["energy"][i][j]], obs["sensor_mask"][i][j])
+            self.data[i, j] = np.array([obs["map_features"]["tile_type"][i][j], 
+                                        obs["map_features"]["energy"][i][j]])
+            
+  # def __init__(self, size, node_info_size=2, obstruction_direction=1):
+  #   self.size = size
+  #   self.node_info_size = node_info_size
+  #   self.data = np.zeros((int(size), int(size), node_info_size), dtype=np.float32)
+  #   self.obstruction_direction = 1  # Default value
+  #   for i in range(size):
+  #     for j in range(size):
+  #       self.data[i, j] = np.zeros(self.node_info_size)
+  
+  def set_obstruction_direction(self, direction):
+    self.obstruction_direction = direction
+
   # Placeholder so we can just pass in the flattened GOM before the AE is created
   def get_data(self):
     return self.data  
@@ -226,8 +239,10 @@ class GrandObstructionMatrixTest():
     return list_of_indices
     
   def safe_update(self, i, j, discrete_values):
+    i = int(i)
+    j = int(j)
     if 0 <= i < self.size and 0 <= j < self.size:
-      self.data[i, j] = np.array(discrete_values)
+      self.data[i][j] = np.array(discrete_values)
 
   def set_index_value(self, map_iteration_period, time_iteration, iteration_index, discrete_values):
     obstruction_movement_step = time_iteration // map_iteration_period  # integer division
@@ -332,7 +347,7 @@ plt.tight_layout()
 plt.savefig("obstruction_matrix_comparison.png")
 plt.show()
 '''
-# Create a UserMatrix instance
+'''# Create a UserMatrix instance
 matrix = UserMatrix(size=24)
 
 # Create 1 unit for ally and enemy (you can modify this to test with more units)
@@ -354,4 +369,4 @@ assert matrix_value[1] == enemy_units, "Enemy units not added correctly!"
 assert matrix_value[2] == value, "Matrix value should be the boolean value"
 
 print("All tests passed!")
-
+'''

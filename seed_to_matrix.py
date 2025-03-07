@@ -63,16 +63,18 @@ def create_and_save_grand_obstruction_matrix(num_matrices):
         map_iteration_period = 1/np.absolute(nebula_tile_drift_speed)
         grand_obstruction_matrix_size = 24 + (500 // int(map_iteration_period))
         obstruction_direction = np.sign(nebula_tile_drift_speed)
-        obstruction_matrix = obstruction_and_relic_matrix.GrandObstructionMatrix(grand_obstruction_matrix_size)
+        obstruction_matrix = obstruction_and_relic_matrix.GrandObstructionMatrixTest(grand_obstruction_matrix_size)
         obstruction_matrix.set_obstruction_direction(obstruction_direction)
         
         for i in range(map.shape[0]):
             for j in range(map.shape[1]):
                 obstruction_matrix.set_index_value(map_iteration_period, time_iteration=0, iteration_index=[i, j], discrete_values=map[i, j])
 
-        obstruction_matrix_data = obstruction_matrix.data.astype(int)
+        #obstruction_matrix_data = obstruction_matrix.data.astype(int)
+        obstruction_matrix_data = obstruction_matrix.data
 
         # Save the obstruction matrix as a numpy file
+        #print(obstruction_matrix_data)
         np.save(os.path.join(file_location, f'grand_obstruction_matrix_{m}.npy'), obstruction_matrix_data)
         
         del obstruction_matrix, obstruction_matrix_data, map, relic_nodes, params
@@ -86,12 +88,12 @@ def create_and_save_grand_obstruction_matrix(num_matrices):
 
 # Check if there are already GOMs saved in the directory
 # If there are, delete them
-'''file_location = 'C:/Users/ahmad/Desktop/lux/GOM_seed_dataset/'
+file_location = 'C:/Users/ahmad/Desktop/lux/GOM_seed_dataset/'
 for f in os.listdir(file_location):
     if 'grand_obstruction_matrix' in f:
         os.remove(file_location + f)
 print('All existing Grand Obstruction Matrices deleted!')
-'''
+
 # Call the function to create and save #N GOMs
 number_of_matrices = 500
 create_and_save_grand_obstruction_matrix(number_of_matrices)

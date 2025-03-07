@@ -8,10 +8,36 @@ from neat import gene, genome, specie, population, savegenome, neatconstants
 from agent.agent import Agent
 from obstruction_and_relic_matrix import GrandObstructionMatrixTest
 import numpy as np
+import torch
+from GOM_autoencoder import Autoencoder
+import wandb
+import torch.nn.functional as F
+
 
 # Import LuxAI classes from your game runner.
 from luxai_s3.wrappers import LuxAIS3GymEnv
 from luxai_runner.episode import EpisodeConfig
+
+
+wandb.init(project="GOM_AE", mode="disabled")
+# Define model parameters (must match those used during saving)
+latent_dim = 10
+num_hiddens = 256
+num_residual_layers = 2
+num_residual_hiddens = 32
+
+# Define device
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+autoencoder = Autoencoder(num_hiddens, num_residual_layers, num_residual_hiddens, latent_dim).to(device)
+model_save_path = 'C:/Users/ahmad/Desktop/lux/GOM_autoencoder_model.pth'
+autoencoder.load_state_dict(torch.load(model_save_path, map_location=device))
+autoencoder.eval()
+autoencoder.train(False)  
+autoencoder.eval()  # Set the model to evaluation mode
+for param in autoencoder.parameters():
+    param.requires_grad = False  # Disable gradients to prevent training
+wandb.finish()
+
 
 def flatten_structure(structure):
     """Recursively flatten nested structures into a single 1D NumPy array."""
@@ -48,7 +74,7 @@ class NeatBot:
         self.team_id = 0 if self.player == "player_0" else 1
         self.opp_team_id = 1 if self.team_id == 0 else 0
         self.env_cfg = env_cfg
-        self.GOM = GrandObstructionMatrixTest(size=24, obs=init_obs)
+        self.GOM = GrandObstructionMatrixTest(size=49, obs=init_obs)
         self.ally_score = 0
         self.enemy_score = 0
 
@@ -78,7 +104,7 @@ class NeatBot:
         #updating the status of each user is a bit problematic because of Eazo's code, I need to add more
         #functions to it first
 
-        unit_information = np.concatenate((obs["units"]["position"], obs["units"]["energy"]), axis=2)
+        unit_information = np.concatenate((obs["units"]["position"], np.expand_dims(obs["units"]["energy"], axis=-1)), axis=-1)
         unit_information = unit_information.flatten() # Unit information extracted and flattend for NN
 
         #updating GOM
@@ -98,8 +124,7 @@ class NeatBot:
         for i in range(24):
             for j in range(24):
                 iteration_index = (i,j)
-                discrete_values = np.array([obs["map_features"]["tile_type"][i][j], obs["map_features"]["energy"][i][j]],
-                                            obs["sensor_mask"])
+                discrete_values = np.array([obs["map_features"]["tile_type"][i][j], obs["map_features"]["energy"][i][j]])
                 iteration_i, iteration_j = self.GOM.get_entangled_iteration_index(i, j)
                 current_cell_state = self.GOM.get_index_value((iteration_i, iteration_j))
                 if current_cell_state[0] != -1:
@@ -107,21 +132,37 @@ class NeatBot:
                 if current_cell_state[1] != -1:
                     discrete_values[1] = current_cell_state[1]
 
-                self.GOM.set_index_values(map_iteration_period, time_iteration, iteration_index, discrete_values)
+                self.GOM.set_index_value(map_iteration_period, time_iteration, iteration_index, discrete_values)
 
         # At this point, the GOM has been updated I need the AE to transform it into better inputs
         # Then I would flatten this input (just keeping spatial data) and combaine this with the unit information
 
-        flattened_GOM = self.GOM.get_data().flatten()
+        # Get the GOM data as a NumPy array
+        gom_data = self.GOM.get_data()  # Get the current GOM matrix
+
+        # Convert GOM data to a format suitable for the encoder (HWC -> CHW format)
+        #gom_data = np.expand_dims(gom_data, axis=0)  # Add batch dimension
+        gom_tensor = torch.tensor(gom_data, dtype=torch.long)
+        # gom_tensor = F.one_hot(gom_tensor, num_classes=3).permute(2, 0, 1).unsqueeze(0).float().to(device)
+        print(gom_tensor.shape)
+        gom_tensor = F.one_hot(torch.tensor(gom_data, dtype=torch.long), num_classes=4).permute(2,0,1).float()  # Now (4,49,49)
+        #gom_tensor = F.one_hot(torch.from_numpy(gom_data).long(), num_classes=3).unsqueeze(0).permute(0, 3, 1, 2).float().to(device)
+
+        # Run the GOM data through the Encoder directly to extract latent features
+        with torch.no_grad():
+            #gom_tensor = torch.from_numpy(gom_data).to(device)  # Convert NumPy array to PyTorch tensor
+            latent_features = autoencoder.encoder(gom_tensor).cpu().numpy().flatten()  # Extract and flatten latent features
+        
+        flattened_GOM = np.array(latent_features).flatten()
         points_gained = np.array([obs["team_points"][ally_index]-self.ally_score, obs["team_points"][enemy_index]-self.enemy_score]) #
         relic_info = np.array(obs["relic_nodes"]).flatten()
-        final_inputs = np.concatenate(unit_information, flattened_GOM, relic_info, points_gained) # All these objects need to be a 1D arrays
+        final_inputs = np.concatenate([unit_information, flattened_GOM, relic_info, points_gained]) # All these objects need to be a 1D arrays
 
         # Final number of inputs = 48 + 12 + 2 + flattened GOM  
         self.ally_score = obs["team_points"][ally_index]
         self.enemy_score = obs["team_points"][enemy_index] # The code for team points relies on the assumption that ally score is always first in the list
 
-        return flatten_structure(list(obs.values()))
+        return final_inputs
 
     def interpret_outputs(self, outputs):
         '''Takes the outputs of genome and applies softmax to decide moves'''
@@ -159,12 +200,12 @@ def evaluate_genome(genome):
     if random_number == 0:
         ally_index = 0
         enemy_index = 1
-        player_0 = NeatBot("player_0",env_cfg, obs, genome=genome)
+        player_0 = NeatBot("player_0",env_cfg, obs["player_0"], genome=genome)
         player_1 = Agent("player_1", env_cfg)
     else:
         enemy_index = 0
         ally_index = 1
-        player_1 = NeatBot("player_1",env_cfg, obs, genome=genome)
+        player_1 = NeatBot("player_1",env_cfg, obs["player_1"], genome=genome)
         player_0 = Agent("player_0", env_cfg)
 
     # Initialise agents
